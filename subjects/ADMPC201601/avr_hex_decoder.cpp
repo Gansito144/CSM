@@ -9,18 +9,27 @@
 
 using namespace std;
 
+#define DEBUG printf
+
 int checksum_ok(string cmd, int size) {
-	int check = 0, twoByte, i;
-	/*for(i=1; i<size-2; i += 2) {
-		sscanf(cmd.substr(i,2).c_str(),"%x",&twoByte);
+	unsigned int check=0;
+	int twoByte, i=1;
+	size = (size+4) * 2;
+	for(; i< size; i += 2) {
+		DEBUG("i(%d): ",i);
+		getHex(to_c(cut(cmd,i,2)),twoByte);
 		check += twoByte;
+		check &= 0xFF;
+		DEBUG("%x %d %x\n",twoByte,twoByte,check);
 	}
 	// Two complement of a function
-	check = -(unsigned int)check;
+	check = (~check) + 1;
+	check &= 0xFF;
+
 	// The cheksum expected
-	sscanf(cmd.substr(i,2).c_str(),"%x",&twoByte);
-	printf("%x %x\n",check,twoByte);*/
-	return check != twoByte;
+	getHex(to_c(cut(cmd,i,2)),twoByte);
+	DEBUG("CheckSums %x %x\n",check,twoByte);
+	return (check != twoByte) ? -EINVAL : 0;
 }
 
 int parse_cmd(string str, string cmd) {
@@ -38,7 +47,7 @@ int parse_cmd(string str, string cmd) {
 	* in the data field
 	**/
 	getHex(to_c(cut(str,1,2)),byteCount);
-	printf("byteCount: %02d %02x\n",byteCount,byteCount);
+	DEBUG("byteCount: %02d %02x\n",byteCount,byteCount);
 
 	/** 
 	* Address: four hex digits, representing 
@@ -46,7 +55,7 @@ int parse_cmd(string str, string cmd) {
 	* of the data. 
 	**/
 	getHex(to_c(cut(str,3,4)),address);
-	printf("address: %04d %04x\n",address,address);
+	DEBUG("address: %04d %04x\n",address,address);
 
 	/** Record type: (see record types below),
 	* two hex digits, 00 to 05, defining the 
@@ -59,7 +68,7 @@ int parse_cmd(string str, string cmd) {
 	* 05	Start Linear Address
 	**/
 	getHex(to_c(cut(str,7,2)),recordType);
-	printf("recordType: %02d %02x\n",recordType,recordType);
+	DEBUG("recordType: %02d %02x\n",recordType,recordType);
 
 	return checksum_ok(str, byteCount);
 }
@@ -84,9 +93,9 @@ int main() {
 			printf("Error ocurred %d\n",err);
 			break;
 		}
-		// If no errors proceed to execute the command
+		// If no errors proceed to execute the command	
 		execute_cmd(parsedCmd);
-		puts("-------------");
+		DEBUG("-------------\n");
 	}
 	return 0;	
 }
