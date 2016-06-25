@@ -3,21 +3,30 @@
 #include <fstream>
 #include <iostream>
 
+// Macros for string processing
 #define cut(s,i,sz) ((s).substr((i),(sz)))
 #define to_c(s) ((s).c_str())
 #define getHex(s,n) (sscanf(s,"%x",&(n)))
 
+// Macros for bits manipulation
+#define getByte(w,B) (((w)&((0xFF)<<B))>>B)
+#define getBit(w,b) (((w)&((0x1)<<b))>>b)
+
 using namespace std;
 
+#if 1
+char logs[123456];
+#define DEBUG(...) sprintf(logs,__VA_ARGS__)
+#else 
 #define DEBUG printf
+#endif
 
-int checksum_ok(string cmd, int size) {
+int checksum_ok(string &str, int &size, int &checkSum) {
 	unsigned int check=0;
 	int twoByte, i=1;
-	size = (size+4) * 2;
 	for(; i< size; i += 2) {
 		DEBUG("i(%d): ",i);
-		getHex(to_c(cut(cmd,i,2)),twoByte);
+		getHex(to_c(cut(str,i,2)),twoByte);
 		check += twoByte;
 		check &= 0xFF;
 		DEBUG("%x %d %x\n",twoByte,twoByte,check);
@@ -26,17 +35,16 @@ int checksum_ok(string cmd, int size) {
 	check = (~check) + 1;
 	check &= 0xFF;
 
-	// The cheksum expected
-	getHex(to_c(cut(cmd,i,2)),twoByte);
-	DEBUG("CheckSums %x %x\n",check,twoByte);
-	return (check != twoByte) ? -EINVAL : 0;
+	// Verify against cheksum expected
+	return (check != checkSum) ? -EINVAL : 0;
 }
 
-int parse_cmd(string str, string cmd) {
+int parse_cmd(string &str, string &cmds) {
 	int byteCount, address, recordType;
+	int checkSum, idx = 1;
 
-	// Clear whatever cmd contains
-	cmd = "";
+	// Clear whatever cmds contains
+	cmds = "";
 	if(!str.size() || str[0] != ':' ){
 		return -EINVAL;
 	}
@@ -46,7 +54,8 @@ int parse_cmd(string str, string cmd) {
 	* the number of bytes (hex digit pairs) 
 	* in the data field
 	**/
-	getHex(to_c(cut(str,1,2)),byteCount);
+	getHex(to_c(cut(str,idx,2)),byteCount);
+	idx += 2;
 	DEBUG("byteCount: %02d %02x\n",byteCount,byteCount);
 
 	/** 
@@ -54,7 +63,8 @@ int parse_cmd(string str, string cmd) {
 	* the 16-bit beginning memory address offset
 	* of the data. 
 	**/
-	getHex(to_c(cut(str,3,4)),address);
+	getHex(to_c(cut(str,idx,4)),address);
+	idx += 4;
 	DEBUG("address: %04d %04x\n",address,address);
 
 	/** Record type: (see record types below),
@@ -67,14 +77,42 @@ int parse_cmd(string str, string cmd) {
 	* 04	Extended Linear Address
 	* 05	Start Linear Address
 	**/
-	getHex(to_c(cut(str,7,2)),recordType);
+	getHex(to_c(cut(str,idx,2)),recordType);
+	idx += 2;
 	DEBUG("recordType: %02d %02x\n",recordType,recordType);
 
-	return checksum_ok(str, byteCount);
+	/** Data: a sequence of n bytes of data, represented
+	* by 2n hex digits.
+	**/
+	cmds = cut(str,idx,2*byteCount);
+	idx += 2*byteCount;
+	DEBUG("data: %s\n",to_c(cmds));
+
+	/** Checksum, two hex digits, a computed value that
+	* can be used to verify the record has no errors.
+	**/
+	getHex(to_c(cut(str,idx,2)),checkSum);
+	DEBUG("checkSum: %02d %02x\n",checkSum,checkSum);
+	return checksum_ok(str, idx, checkSum);
 }
 
-void execute_cmd(string cmd) {
+void execute_cmd( int &opCode ) {
+	printf("%02X %02X %02X %02X\n",getByte(opCode,0),getByte(opCode,1),getByte(opCode,2),getByte(opCode,3));
+	printf("%02X %02X %02X %02X\n",getByte(opCode,3),getByte(opCode,2),getByte(opCode,1),getByte(opCode,0));
+}
 
+
+void split_cmds(string &cmds) {
+	// We had blocks of 4 bytes, lets process them
+	int opCode;
+	for(int i=0; i<cmds.size(); i += 4) {
+		getHex(to_c(cut(cmds,i,4)),opCode);
+		DEBUG("opCode: %04d %04x\n",opCode,opCode);
+		/** Now that we know each opcode lets 'execute' them
+		* Each opcode is an int of 16 bits
+		**/
+		execute_cmd(opCode);
+	}
 }
 
 int main() {
@@ -82,6 +120,7 @@ int main() {
 	string parsedCmd;
 	ifstream hexFile;
 
+	//For test purposes
 	hexFile.open("main.hex");
 	int err = 0;
 
@@ -94,8 +133,7 @@ int main() {
 			break;
 		}
 		// If no errors proceed to execute the command	
-		execute_cmd(parsedCmd);
-		DEBUG("-------------\n");
+		split_cmds(parsedCmd);
 	}
 	return 0;	
 }
