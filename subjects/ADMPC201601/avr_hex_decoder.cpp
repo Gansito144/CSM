@@ -9,8 +9,13 @@
 #define getHex(s,n) (sscanf(s,"%x",&(n)))
 
 // Macros for bits manipulation
-#define getByte(w,B) (((w)&((0xF)<<B))>>B)
+#define get4Bits(w,B) (((w)&((0xF)<<(B*4)))>>(B*4))
+#define getByte(w,B) (((w)&((0xFF)<<(B*8)))>>(B*8))
 #define getBit(w,b) (((w)&((0x1)<<b))>>b)
+#define shiftBits(w,b) ((w)<<b)
+
+// Macros to evaluate commands
+#define AVR_EXE printf
 
 using namespace std;
 
@@ -21,6 +26,9 @@ char logs[123456];
 #else 
 #define DEBUG printf
 #endif
+
+// Type to store array of functions
+typedef void (*Handler)(int &opCode);
 
 // Return true when the checksum of hex line is OK
 int checksum_ok(string &str, int &size, int &checkSum) {
@@ -97,50 +105,73 @@ int parse_cmd(string &str, string &cmds) {
 	return checksum_ok(str, idx, checkSum);
 }
 
-void opAxzz0(int &opCode){printf("%s\n",__FUNCTION__);}
-void opAxzz1(int &opCode){printf("%s\n",__FUNCTION__);}
-void opAxzz2(int &opCode){printf("%s\n",__FUNCTION__);}
-void opAxzz3(int &opCode){printf("%s\n",__FUNCTION__);}
-void opAxzz4(int &opCode){printf("%s\n",__FUNCTION__);}
-void opAxzz5(int &opCode){printf("%s\n",__FUNCTION__);}
-void opAxzz6(int &opCode){printf("%s\n",__FUNCTION__);}
-void opAxzz7(int &opCode){printf("%s\n",__FUNCTION__);}
-void opAxzz8(int &opCode){printf("%s\n",__FUNCTION__);}
-void opAxzz9(int &opCode){printf("%s\n",__FUNCTION__);}
-void opAxzzA(int &opCode){printf("%s\n",__FUNCTION__);}
-void opAxzzB(int &opCode){printf("%s\n",__FUNCTION__);}
-void opAxzzC(int &opCode){printf("%s\n",__FUNCTION__);}
-void opAxzzD(int &opCode){printf("%s\n",__FUNCTION__);}
-void opAxzzE(int &opCode){printf("%s\n",__FUNCTION__);}
-void opAxzzF(int &opCode){printf("%s\n",__FUNCTION__);}
+void op0xzz(int &opCode) {
+	int B = get4Bits(opCode,2);
+	int d, r;
+	char tmp[20];
+	string cmd, param;
+	
+	if(B == 0){
+		cmd = (opCode == 0) ? "nop" : "[R]";
+		param = "";
+	}else if(B >= 0x4){
+		cmd = (B>=0xC)?"add":((B>=0x8)?"sbc":"cpc");
+		r = shiftBits(getBit(opCode,10),5) + get4Bits(opCode,0);
+		d = shiftBits(getBit(opCode,9),5) + get4Bits(opCode,1);
+		sprintf(tmp,"R%d, R%d",d,r);
+		param = tmp;
+	}else {
+		cmd = "other";
+	}
+	AVR_EXE("%s\n",to_c(cmd+" "+param));
+}
 
-// Axzz Array to select the right instruction
-typedef void (*Handler)(int &opCode);
-Handler Axzz[] = {
-    opAxzz0, opAxzz1, opAxzz2, opAxzz3,
-    opAxzz4, opAxzz5, opAxzz6, opAxzz7,
-    opAxzz8, opAxzz9, opAxzzA, opAxzzB,
-    opAxzzC, opAxzzD, opAxzzE, opAxzzF
+void op1xzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void op2xzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void op3xzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void op4xzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void op5xzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void op6xzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void op7xzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void op8xzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void op9xzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void opAxzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void opBxzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void opCxzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void opDxzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void opExzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void opFxzz(int &opCode){printf("%s\n",__FUNCTION__);}
+
+// Axzz Array to select based on the first bytes
+Handler oAxzz[] = {
+    op0xzz, op1xzz, op2xzz, op3xzz,
+    op4xzz, op5xzz, op6xzz, op7xzz,
+    op8xzz, op9xzz, opAxzz, opBxzz,
+    opCxzz, opDxzz, opExzz, opFxzz
 };
 
 // Choose the right command to execute based on some reduction  
 void execute_cmd( int &opCode ) {
-	int A = getByte(opCode,3);
+	int A = get4Bits(opCode,3);
 	// Delegate the responsability to next functions
-	printf("A (%02d) (%x)",A,A);
-	Axzz[A](opCode);
+	DEBUG("A (%02d) (%x)",A,A);
+	oAxzz[A](opCode);
 }
 
 
 void split_cmds(string &cmds) {
 	// We had blocks of 4 bytes, lets process them
-	int opCode;
+	int opCode, swapCode;
 	for(int i=0; i<cmds.size(); i += 4) {
 		getHex(to_c(cut(cmds,i,4)),opCode);
 		DEBUG("opCode: %04d %04x\n",opCode,opCode);
 		/** Now that we know each opcode lets 'execute' them
 		* Each opcode is an int of 16 bits
 		**/
+		/* We have to swap the byte order to Endianess */
+		swapCode  = shiftBits(getByte(opCode,0),8);
+		swapCode |= shiftBits(getByte(opCode,1),0);
+		
 		execute_cmd(opCode);
 	}
 }
