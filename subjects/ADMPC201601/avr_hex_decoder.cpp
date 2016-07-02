@@ -209,12 +209,41 @@ void opC_Dxzz(int &opCode){
 void opExzz(int &opCode){
 	// Just ignore the most significative nibble
 	int k = shiftBits(get4Bits(opCode,2),4) + get4Bits(opCode,0);
-	int d = get4Bits(opCode,1);
+	int d = get4Bits(opCode,1);;
 	sprintf(tmp,"%s R%d, %d","ldi",d,k);
 	string cmd = tmp;
 	AVR_EXE("%s\n",to_c(cmd));
 }
-void opFxzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void opFxzz(int &opCode){
+	int s = opCode & 0x7;
+	int B = get4Bits(opCode,2) >> 2;
+	int d = shiftBits(getBit(opCode, 8),4) + get4Bits(opCode,1);
+	int k  = shiftBits(getByte(opCode,1),1);
+		k += getBit(opCode,3);
+		k += shiftBits((opCode & 0x300),5);
+	string cmd;
+
+	switch(B) {
+		case 0:{
+			sprintf(tmp,"brbs %d, %d",s,k);
+			break;
+		}
+		case 1:{
+			sprintf(tmp,"brbc %d, %d",s,k);
+			break;
+		}
+		case 2:{
+			sprintf(tmp,"%s R%d, %d",(getBit(opCode,9)?"bst":"bld"),d,s);
+			break;
+		}
+		case 3:{
+			sprintf(tmp,"%s R%d, %d",(getBit(opCode,9)?"sbrs":"sbrc"),d,s);
+			break;
+		}
+	}
+	cmd = tmp;
+	AVR_EXE("%s\n",to_c(cmd));
+}
 
 // Axzz Array to select based on the first bytes
 Handler oAxzz[] = {
