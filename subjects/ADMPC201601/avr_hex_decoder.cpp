@@ -3,6 +3,9 @@
 #include <fstream>
 #include <iostream>
 
+// Endianess macro
+#define little_endian 0
+
 // Macros for string processing
 #define cut(s,i,sz) ((s).substr((i),(sz)))
 #define to_c(s) ((s).c_str())
@@ -54,7 +57,7 @@ int parse_cmd(string &str, string &cmds) {
 
 	// Clear whatever cmds contains
 	cmds = "";
-	if(!str.size() || str[0] != ':' ){
+	if(!str.size() || ':' != str[0] ){
 		return -EINVAL;
 	}
 	
@@ -107,26 +110,53 @@ int parse_cmd(string &str, string &cmds) {
 
 void op0xzz(int &opCode) {
 	int B = get4Bits(opCode,2);
-	int d, r;
+	int d=0, r=0;
 	char tmp[20];
 	string cmd, param;
-	
-	if(B == 0){
-		cmd = (opCode == 0) ? "nop" : "[R]";
+	DEBUG("OpCode 0x%x B0x%x",opCode,B);
+	if(0 == B){
+		cmd = (0 == opCode) ? "nop" : "[R]";
 		param = "";
-	}else if(B >= 0x4){
-		cmd = (B>=0xC)?"add":((B>=0x8)?"sbc":"cpc");
-		r = shiftBits(getBit(opCode,10),5) + get4Bits(opCode,0);
-		d = shiftBits(getBit(opCode,9),5) + get4Bits(opCode,1);
+	}else if(0x4 <= B){
+		cmd = (0xC<=B)?"add":((0x8<=B)?"sbc":"cpc");
+		r = shiftBits(getBit(opCode,9),4) + get4Bits(opCode,0);
+		d = shiftBits(getBit(opCode,8),4) + get4Bits(opCode,1);
 		sprintf(tmp,"R%d, R%d",d,r);
 		param = tmp;
 	}else {
-		cmd = "other";
+		switch(B){
+			case 1:
+			case 2: {
+				r = get4Bits(opCode,0);
+				d = get4Bits(opCode,1);
+				cmd = (2==B)?"movw":"muls";
+				break;
+			}
+			case 3: {
+				//Turn off last bit for each word
+				r = get4Bits(opCode,0)^0x8;
+				d = get4Bits(opCode,1)^0x8;
+				// Generate new code to see which type of mul is
+				int mCode = shiftBits(getBit(opCode,7),1);
+				   mCode += shiftBits(getBit(opCode,3),0);
+				switch(mCode){
+					case 0:{cmd = "mulsu";break;}
+					case 1:{cmd = "fmul";break;}
+					case 2:{cmd = "fmuls";break;}
+					case 3:{cmd = "fmulsu";break;}
+				}
+				break;
+			}
+		}
+		sprintf(tmp,"R%d, R%d",d,r);
+		param = tmp;
 	}
 	AVR_EXE("%s\n",to_c(cmd+" "+param));
 }
 
-void op1xzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void op1xzz(int &opCode) {
+}
+
 void op2xzz(int &opCode){printf("%s\n",__FUNCTION__);}
 void op3xzz(int &opCode){printf("%s\n",__FUNCTION__);}
 void op4xzz(int &opCode){printf("%s\n",__FUNCTION__);}
@@ -168,10 +198,11 @@ void split_cmds(string &cmds) {
 		/** Now that we know each opcode lets 'execute' them
 		* Each opcode is an int of 16 bits
 		**/
-		/* We have to swap the byte order to Endianess */
-		swapCode  = shiftBits(getByte(opCode,0),8);
-		swapCode |= shiftBits(getByte(opCode,1),0);
-		
+		if(little_endian) {
+			/* We have to swap the byte order to Endianess */
+			swapCode  = shiftBits(getByte(opCode,0),8);
+			swapCode |= shiftBits(getByte(opCode,1),0);
+		}
 		execute_cmd(opCode);
 	}
 }
