@@ -4,7 +4,7 @@
 #include <iostream>
 
 // Endianess macro
-#define little_endian 0
+#define little_endian true
 
 // Macros for string processing
 #define cut(s,i,sz) ((s).substr((i),(sz)))
@@ -78,6 +78,7 @@ int parse_cmd(string &str, string &cmds) {
 	getHex(to_c(cut(str,idx,4)),address);
 	idx += 4;
 	DEBUG("address: %04d %04x\n",address,address);
+	DEBUG("start address: %04d %04x\n",address/2,address/2);
 
 	/** Record type: (see record types below),
 	* two hex digits, 00 to 05, defining the 
@@ -182,7 +183,22 @@ void op3_7xzz(int &opCode){
 void op8xzz(int &opCode){printf("%s\n",__FUNCTION__);}
 void op9xzz(int &opCode){printf("%s\n",__FUNCTION__);}
 void opAxzz(int &opCode){printf("%s\n",__FUNCTION__);}
-void opBxzz(int &opCode){printf("%s\n",__FUNCTION__);}
+
+void opBxzz(int &opCode){
+	char tmp[30];
+	int op = getBit(opCode,11);
+	int d = shiftBits(getBit(opCode, 8),4) + get4Bits(opCode,1);
+	int A = shiftBits(getBit(opCode, 9),4);
+	    A = shiftBits(getBit(opCode,10),5) + get4Bits(opCode,0);
+	if(op) {
+		sprintf(tmp,"out %d, R%d",A,d);
+	}else {
+		sprintf(tmp,"in R%d, %d",d,A);
+	}
+	string cmd = tmp;
+	AVR_EXE("%s\n",to_c(cmd));
+}
+
 void opCxzz(int &opCode){printf("%s\n",__FUNCTION__);}
 void opDxzz(int &opCode){printf("%s\n",__FUNCTION__);}
 void opExzz(int &opCode){printf("%s\n",__FUNCTION__);}
@@ -190,10 +206,10 @@ void opFxzz(int &opCode){printf("%s\n",__FUNCTION__);}
 
 // Axzz Array to select based on the first bytes
 Handler oAxzz[] = {
-    op0xzz, op1_2xzz, op1_2xzz, op3_7xzz,
+    op0xzz,   op1_2xzz, op1_2xzz, op3_7xzz,
     op3_7xzz, op3_7xzz, op3_7xzz, op3_7xzz,
-    op8xzz, op9xzz, opAxzz, opBxzz,
-    opCxzz, opDxzz, opExzz, opFxzz
+    op8xzz,     op9xzz,   opAxzz,   opBxzz,
+    opCxzz,     opDxzz,   opExzz,   opFxzz
 };
 
 // Choose the right command to execute based on some reduction  
@@ -218,6 +234,7 @@ void split_cmds(string &cmds) {
 			/* We have to swap the byte order to Endianess */
 			swapCode  = shiftBits(getByte(opCode,0),8);
 			swapCode |= shiftBits(getByte(opCode,1),0);
+			opCode = swapCode;
 		}
 		execute_cmd(opCode);
 	}
