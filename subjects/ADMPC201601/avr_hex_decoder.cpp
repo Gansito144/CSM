@@ -113,7 +113,7 @@ void op0xzz(int &opCode) {
 	int d=0, r=0;
 	char tmp[20];
 	string cmd, param;
-	DEBUG("OpCode 0x%x B0x%x",opCode,B);
+	DEBUG("OpCode 0x%x B0x%x\n",opCode,B);
 	if(0 == B){
 		cmd = (0 == opCode) ? "nop" : "[R]";
 		param = "";
@@ -155,9 +155,33 @@ void op0xzz(int &opCode) {
 }
 
 void op1xzz(int &opCode) {
+	int B = get4Bits(opCode,2) >> 2;
+	string cmds[4] = {"cpse","cp","sub","adc"};
+	string cmd, param;
+	char tmp[20];
+	int r = shiftBits(getBit(opCode,9),4) + get4Bits(opCode,0);
+	int d = shiftBits(getBit(opCode,8),4) + get4Bits(opCode,1);
+	sprintf(tmp,"R%d, R%d",d,r);
+	param = tmp;
+	cmd = cmds[B];
+	DEBUG("OpCode 0x%x B0x%x\n",opCode,B);
+	AVR_EXE("%s\n",to_c(cmd+" "+param));
 }
 
-void op2xzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void op2xzz(int &opCode){
+	int B = get4Bits(opCode,2) >> 2;
+	string cmds[4] = {"and","eor","or","mov"};
+	string cmd, param;
+	char tmp[20];
+	int r = shiftBits(getBit(opCode,9),4) + get4Bits(opCode,0);
+	int d = shiftBits(getBit(opCode,8),4) + get4Bits(opCode,1);
+	sprintf(tmp,"R%d, R%d",d,r);
+	param = tmp;
+	cmd = cmds[B];
+	DEBUG("OpCode 0x%x B0x%x\n",opCode,B);
+	AVR_EXE("%s\n",to_c(cmd+" "+param));
+}
+
 void op3xzz(int &opCode){printf("%s\n",__FUNCTION__);}
 void op4xzz(int &opCode){printf("%s\n",__FUNCTION__);}
 void op5xzz(int &opCode){printf("%s\n",__FUNCTION__);}
