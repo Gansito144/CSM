@@ -4,7 +4,7 @@
 #include <iostream>
 
 // Endianess macro
-#define little_endian true
+#define little_endian false
 
 // Macros for string processing
 #define cut(s,i,sz) ((s).substr((i),(sz)))
