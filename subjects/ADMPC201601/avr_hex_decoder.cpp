@@ -182,11 +182,16 @@ void op2xzz(int &opCode){
 	AVR_EXE("%s\n",to_c(cmd+" "+param));
 }
 
-void op3xzz(int &opCode){printf("%s\n",__FUNCTION__);}
-void op4xzz(int &opCode){printf("%s\n",__FUNCTION__);}
-void op5xzz(int &opCode){printf("%s\n",__FUNCTION__);}
-void op6xzz(int &opCode){printf("%s\n",__FUNCTION__);}
-void op7xzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void op3_7xzz(int &opCode){
+	int k = shiftBits(get4Bits(opCode,2),8) + get4Bits(opCode,0);
+	int A = get4Bits(opCode,3);
+	int d = get4Bits(opCode,1);
+	string cmd, param, cmds[] = {"cpi","sbci","subi","ori","andi"};
+	char tmp[20];
+	cmd = cmds[A - 0x3];
+	sprintf(tmp,"R%d, %d",d,k);
+	AVR_EXE("%s\n",to_c(cmd+" "+param));
+}
 void op8xzz(int &opCode){printf("%s\n",__FUNCTION__);}
 void op9xzz(int &opCode){printf("%s\n",__FUNCTION__);}
 void opAxzz(int &opCode){printf("%s\n",__FUNCTION__);}
@@ -198,8 +203,8 @@ void opFxzz(int &opCode){printf("%s\n",__FUNCTION__);}
 
 // Axzz Array to select based on the first bytes
 Handler oAxzz[] = {
-    op0xzz, op1xzz, op2xzz, op3xzz,
-    op4xzz, op5xzz, op6xzz, op7xzz,
+    op0xzz, op1xzz, op2xzz, op3_7xzz,
+    op3_7xzz, op3_7xzz, op3_7xzz, op3_7xzz,
     op8xzz, op9xzz, opAxzz, opBxzz,
     opCxzz, opDxzz, opExzz, opFxzz
 };
