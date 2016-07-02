@@ -154,30 +154,17 @@ void op0xzz(int &opCode) {
 	AVR_EXE("%s\n",to_c(cmd+" "+param));
 }
 
-void op1xzz(int &opCode) {
+void op1_2xzz(int &opCode) {
 	int B = get4Bits(opCode,2) >> 2;
-	string cmds[4] = {"cpse","cp","sub","adc"};
+	int A = get4Bits(opCode,3);
+	string cmds[2][4] = {{"cpse","cp","sub","adc"},{"and","eor","or","mov"}};
 	string cmd, param;
 	char tmp[20];
 	int r = shiftBits(getBit(opCode,9),4) + get4Bits(opCode,0);
 	int d = shiftBits(getBit(opCode,8),4) + get4Bits(opCode,1);
 	sprintf(tmp,"R%d, R%d",d,r);
 	param = tmp;
-	cmd = cmds[B];
-	DEBUG("OpCode 0x%x B0x%x\n",opCode,B);
-	AVR_EXE("%s\n",to_c(cmd+" "+param));
-}
-
-void op2xzz(int &opCode){
-	int B = get4Bits(opCode,2) >> 2;
-	string cmds[4] = {"and","eor","or","mov"};
-	string cmd, param;
-	char tmp[20];
-	int r = shiftBits(getBit(opCode,9),4) + get4Bits(opCode,0);
-	int d = shiftBits(getBit(opCode,8),4) + get4Bits(opCode,1);
-	sprintf(tmp,"R%d, R%d",d,r);
-	param = tmp;
-	cmd = cmds[B];
+	cmd = cmds[A-1][B];
 	DEBUG("OpCode 0x%x B0x%x\n",opCode,B);
 	AVR_EXE("%s\n",to_c(cmd+" "+param));
 }
@@ -203,7 +190,7 @@ void opFxzz(int &opCode){printf("%s\n",__FUNCTION__);}
 
 // Axzz Array to select based on the first bytes
 Handler oAxzz[] = {
-    op0xzz, op1xzz, op2xzz, op3_7xzz,
+    op0xzz, op1_2xzz, op1_2xzz, op3_7xzz,
     op3_7xzz, op3_7xzz, op3_7xzz, op3_7xzz,
     op8xzz, op9xzz, opAxzz, opBxzz,
     opCxzz, opDxzz, opExzz, opFxzz
