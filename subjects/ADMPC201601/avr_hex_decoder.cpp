@@ -22,6 +22,9 @@
 
 using namespace std;
 
+// temporal buffer to manage commands
+char tmp[102];
+
 // Just for debugging process
 #if 1
 char logs[123456];
@@ -112,7 +115,6 @@ int parse_cmd(string &str, string &cmds) {
 void op0xzz(int &opCode) {
 	int B = get4Bits(opCode,2);
 	int d=0, r=0;
-	char tmp[20];
 	string cmd, param;
 	DEBUG("OpCode 0x%x B0x%x\n",opCode,B);
 	if(0 == B){
@@ -160,7 +162,6 @@ void op1_2xzz(int &opCode) {
 	int A = get4Bits(opCode,3);
 	string cmds[2][4] = {{"cpse","cp","sub","adc"},{"and","eor","or","mov"}};
 	string cmd, param;
-	char tmp[20];
 	int r = shiftBits(getBit(opCode,9),4) + get4Bits(opCode,0);
 	int d = shiftBits(getBit(opCode,8),4) + get4Bits(opCode,1);
 	sprintf(tmp,"R%d, R%d",d,r);
@@ -175,7 +176,6 @@ void op3_7xzz(int &opCode){
 	int A = get4Bits(opCode,3);
 	int d = get4Bits(opCode,1);
 	string cmd, param, cmds[] = {"cpi","sbci","subi","ori","andi"};
-	char tmp[20];
 	cmd = cmds[A - 0x3];
 	sprintf(tmp,"R%d, %d",d,k);
 	AVR_EXE("%s\n",to_c(cmd+" "+param));
@@ -185,7 +185,6 @@ void op9xzz(int &opCode){printf("%s\n",__FUNCTION__);}
 void opAxzz(int &opCode){printf("%s\n",__FUNCTION__);}
 
 void opBxzz(int &opCode){
-	char tmp[30];
 	int op = getBit(opCode,11);
 	int d = shiftBits(getBit(opCode, 8),4) + get4Bits(opCode,1);
 	int A = shiftBits(getBit(opCode, 9),4);
@@ -199,9 +198,22 @@ void opBxzz(int &opCode){
 	AVR_EXE("%s\n",to_c(cmd));
 }
 
-void opCxzz(int &opCode){printf("%s\n",__FUNCTION__);}
-void opDxzz(int &opCode){printf("%s\n",__FUNCTION__);}
-void opExzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void opC_Dxzz(int &opCode){
+	int A = get4Bits(opCode,3);
+	// Just ignore the most significative nibble
+	int k = opCode & 0x0FFF;
+	sprintf(tmp,"%s %d",(0xC==A)?"rjmp":"rcall",k);
+	string cmd = tmp;
+	AVR_EXE("%s\n",to_c(cmd));
+}
+void opExzz(int &opCode){
+	// Just ignore the most significative nibble
+	int k = shiftBits(get4Bits(opCode,2),4) + get4Bits(opCode,0);
+	int d = get4Bits(opCode,1);
+	sprintf(tmp,"%s R%d, %d","ldi",d,k);
+	string cmd = tmp;
+	AVR_EXE("%s\n",to_c(cmd));
+}
 void opFxzz(int &opCode){printf("%s\n",__FUNCTION__);}
 
 // Axzz Array to select based on the first bytes
@@ -209,7 +221,7 @@ Handler oAxzz[] = {
     op0xzz,   op1_2xzz, op1_2xzz, op3_7xzz,
     op3_7xzz, op3_7xzz, op3_7xzz, op3_7xzz,
     op8xzz,     op9xzz,   opAxzz,   opBxzz,
-    opCxzz,     opDxzz,   opExzz,   opFxzz
+    opC_Dxzz, opC_Dxzz,   opExzz,   opFxzz
 };
 
 // Choose the right command to execute based on some reduction  
