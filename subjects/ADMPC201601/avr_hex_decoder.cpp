@@ -187,7 +187,46 @@ void op8xzz(int &opCode){
 	string cmd = tmp;
 	AVR_EXE("%s\n",to_c(cmd));
 }
-void op9xzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void op9xzz(int &opCode){
+	int B = get4Bits(opCode,2);
+	int r=0, d=0, b=0, A=0, K=0;
+	string cmd, param;
+	// Lets write everything and then optimize
+	switch(B) {
+		case 0x0:{break;}
+		case 0x1:{break;}
+		case 0x2:{break;}
+		case 0x3:{break;}
+		case 0x4:{break;}
+		case 0x5:{break;}
+		case 0x6: case 0x7:{
+			cmd=(B==0x6)?"adiw":"sbiw";
+			K = shiftBits(getByte(opCode,1)>>2,2) + getByte(opCode,0);
+			d = getByte(opCode,1) & 0x3;
+			sprintf(tmp,"R%d:R%d, %d",d+1,d,K);
+			break;
+		}
+		case 0x8: case 0x9: case 0xA: case 0xB:{
+			int BB = B & 0x7;
+			A = shiftBits(get4Bits(opCode,1),1) + getBit(opCode,3);
+			b = opCode & 0x7;
+			string cmds[] = {"cbi","sbic","sbi","sbis"};
+			cmd = cmds[BB];
+			sprintf(tmp,"%d, %d",A,b);
+			param = tmp;
+			break;
+		}
+		case 0xC: case 0xD: case 0xE: case 0xF:{
+			cmd = "mul";
+			r = shiftBits(getBit(opCode,9),4) + get4Bits(opCode,0);
+			d = shiftBits(getBit(opCode,8),4) + get4Bits(opCode,1);
+			sprintf(tmp,"R%d, R%d",d,r);
+			param = tmp;
+			break;
+		}
+	}
+	AVR_EXE("%s\n",to_c(cmd+" "+param));
+}
 void opAxzz(int &opCode){
 	int zy = getBit(opCode,3);
 	int ls = getBit(opCode,9);
