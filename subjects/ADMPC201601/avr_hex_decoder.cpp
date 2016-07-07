@@ -4,7 +4,7 @@
 #include <iostream>
 
 // Endianess macro
-#define little_endian false
+#define little_endian true
 
 // Macros for string processing
 #define cut(s,i,sz) ((s).substr((i),(sz)))
@@ -180,9 +180,31 @@ void op3_7xzz(int &opCode){
 	sprintf(tmp,"R%d, %d",d,k);
 	AVR_EXE("%s\n",to_c(cmd+" "+param));
 }
-void op8xzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void op8xzz(int &opCode){
+	int zy = getBit(opCode,3);
+	int d = shiftBits(getBit(opCode, 8),4) + get4Bits(opCode,1);
+	sprintf(tmp,"%s R%d, %c","ld",d,"ZY"[zy]);
+	string cmd = tmp;
+	AVR_EXE("%s\n",to_c(cmd));
+}
 void op9xzz(int &opCode){printf("%s\n",__FUNCTION__);}
-void opAxzz(int &opCode){printf("%s\n",__FUNCTION__);}
+void opAxzz(int &opCode){
+	int zy = getBit(opCode,3);
+	int ls = getBit(opCode,9);
+	int d = shiftBits(getBit(opCode, 8),4) + get4Bits(opCode,1);
+	int q = shiftBits(getBit(opCode,13),5);
+		q+= shiftBits(getBit(opCode,11),4);
+		q+= shiftBits(getBit(opCode,10),3);
+		q+= (opCode&0x7);
+	string cmd;
+	if(ls) {
+		sprintf(tmp,"std %c+%d, R%d","ZY"[zy],q,d);
+	}else {
+		sprintf(tmp,"ldd R%d, %c+%d",d,"ZY"[zy],q);
+	}
+	cmd = tmp;
+	AVR_EXE("%s\n",to_c(cmd));
+}
 
 void opBxzz(int &opCode){
 	int op = getBit(opCode,11);
@@ -209,7 +231,7 @@ void opC_Dxzz(int &opCode){
 void opExzz(int &opCode){
 	// Just ignore the most significative nibble
 	int k = shiftBits(get4Bits(opCode,2),4) + get4Bits(opCode,0);
-	int d = get4Bits(opCode,1);;
+	int d = get4Bits(opCode,1);
 	sprintf(tmp,"%s R%d, %d","ldi",d,k);
 	string cmd = tmp;
 	AVR_EXE("%s\n",to_c(cmd));
