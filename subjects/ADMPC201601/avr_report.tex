@@ -1,0 +1,141 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beamer Presentation
+% LaTeX Template
+% Version 1.0 (10/11/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
+\documentclass{beamer}
+
+\mode<presentation> {
+
+\usetheme{Madrid}
+\usecolortheme{dolphin}
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+%\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+%\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+
+\usepackage{graphicx} % Allows including images
+\usepackage{ragged2e} % Jusitfy
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{lmodern}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{multicol}
+\usepackage{listings} % C++ code
+\lstset{language=C++,
+                basicstyle=\footnotesize\ttfamily,
+                keywordstyle=\footnotesize\color{blue}\ttfamily,
+}
+\addtobeamertemplate{block begin}{}{\justifying} %Justify
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title[AVR Set Instructions Analysis]{AVR Set Instructions Analysis} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author{Ulises M\'endez Mart\'{i}nez} % Your name
+\institute[UAG] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+{
+Universidad Aut\'onoma de Guadalajara  \\ % Your institution for the title page
+\medskip
+\textit{ulisesmdzmtz@gmail.com} % Your email address
+}
+\date{\today} % Date, can be changed to a custom date
+
+\begin{document}
+
+\begin{frame}
+\titlepage % Print the title page as the first slide
+\end{frame}
+
+
+%--------------------------------------------------------
+%	PRESENTATION SLIDES
+%--------------------------------------------------------
+
+%--------------------------------------------------------
+\section{Summary} 
+\subsection{Blocks of 256 instructions}
+\begin{frame}
+\frametitle{Table}
+Here
+\end{frame}
+
+%--------------------------------------------------------
+\section{AVR opcodes}
+
+\begin{frame}
+\frametitle{by Jeremy Brandon}
+
+\begin{multicols}{2}
+\begin{itemize}
+	\item empty
+	\item size
+	\item front
+	\item back
+	\item push\_back
+	\item pop\_front
+\end{itemize}
+\end{multicols}
+
+\end{frame}
+%--------------------------------------------------------
+\section{Code Implementation}
+\begin{frame}
+\frametitle{C++}
+
+\end{frame}
+%--------------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{ Solution using C++ }
+\begin{example}[ C++ Implementation ]
+\begin{lstlisting}
+// Macros for bits manipulation
+#define get4Bits(w,B) (((w)&((0xF)<<(B*4)))>>(B*4))
+#define getByte(w,B) (((w)&((0xFF)<<(B*8)))>>(B*8))
+#define getBit(w,b) (((w)&((0x1)<<b))>>b)
+#define shiftBits(w,b) ((w)<<b)
+\end{lstlisting}
+\end{example}
+\end{frame}
+%--------------------------------------------------------
+%--------------------------------------------------------
+\begin{frame}[fragile]
+\frametitle{ Solution using C++ }
+\begin{example}[ C++ Implementation ]
+\begin{lstlisting}
+// Macros for string processing
+#define clean(s) sprintf((s),"")
+#define cut(s,i,sz) ((s).substr((i),(sz)))
+#define to_c(s) ((s).c_str())
+#define getHex(s,n) (sscanf(s,"%x",&(n)))
+\end{lstlisting}
+\end{example}
+\end{frame}
+%--------------------------------------------------------
+%--------------------------------------------------------
+\begin{frame}
+\frametitle{ References }
+\begin{itemize}
+	\item http://lyons42.com/AVR/Opcodes/AVRAllOpcodes.html
+	\item http://www.avrfreaks.net/forum/looking-avr-opcode-table
+	\item https://en.wikipedia.org/wiki/Intel\_HEX
+\end{itemize}
+\end{frame}
+
+\end{document} 
