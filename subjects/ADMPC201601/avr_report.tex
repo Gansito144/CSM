@@ -71,28 +71,81 @@ Universidad Aut\'onoma de Guadalajara  \\ % Your institution for the title page
 \section{Summary} 
 \subsection{Blocks of 256 instructions}
 \begin{frame}
-\frametitle{Table}
-Here
+\frametitle{Summary Table I}
+\small
+\begin{center}
+    \begin{tabular}{| l | l | l | l | l | l | l | l | l |}
+    \hline
+    - & x0zz & x1zz & x2zz & x3zz & x4zz & x5zz & x6zz & x7zz \\    \hline
+    0xzz & & & & & & & & \\ \hline
+    1xzz & & & & & & & & \\ \hline
+    2xzz & & & & & & & & \\ \hline
+    3xzz & & & & & & & & \\ \hline
+    4xzz & & & & & & & & \\ \hline
+    5xzz & & & & & & & & \\ \hline
+    6xzz & & & & & & & & \\ \hline
+    7xzz & & & & & & & & \\ \hline
+    8xzz & & & & & & & & \\ \hline
+    9xzz & & & & & & & & \\ \hline
+    Axzz & & & & & & & & \\ \hline
+    Bxzz & & & & & & & & \\ \hline
+    Cxzz & & & & & & & & \\ \hline
+    Dxzz & & & & & & & & \\ \hline
+    Exzz & & & & & & & & \\ \hline
+    Fxzz & & & & & & & & \\ \hline
+    \end{tabular}
+\end{center}
+\end{frame}
+%--------------------------------------------------------
+\begin{frame}
+\frametitle{Summary Table II}
+\small
+\begin{center}
+    \begin{tabular}{| l | l | l | l | l | l | l | l | l |}
+    \hline
+    - & x8zz & x9zz & xAzz & xBzz & xCzz & xDzz & xEzz & xFzz \\    \hline
+    0xzz & & & & & & & & \\ \hline
+    1xzz & & & & & & & & \\ \hline
+    2xzz & & & & & & & & \\ \hline
+    3xzz & & & & & & & & \\ \hline
+    4xzz & & & & & & & & \\ \hline
+    5xzz & & & & & & & & \\ \hline
+    6xzz & & & & & & & & \\ \hline
+    7xzz & & & & & & & & \\ \hline
+    8xzz & & & & & & & & \\ \hline
+    9xzz & & & & & & & & \\ \hline
+    Axzz & & & & & & & & \\ \hline
+    Bxzz & & & & & & & & \\ \hline
+    Cxzz & & & & & & & & \\ \hline
+    Dxzz & & & & & & & & \\ \hline
+    Exzz & & & & & & & & \\ \hline
+    Fxzz & & & & & & & & \\ \hline
+    \end{tabular}
+\end{center}
 \end{frame}
 
 %--------------------------------------------------------
 \section{AVR opcodes}
-
 \begin{frame}
-\frametitle{by Jeremy Brandon}
+\frametitle{C++}
 
-\begin{multicols}{2}
-\begin{itemize}
-	\item empty
-	\item size
-	\item front
-	\item back
-	\item push\_back
-	\item pop\_front
-\end{itemize}
-\end{multicols}
+Most are single 16 bit words; four marked * have a second word
+to define an address or address extension ($kkkk kkkk kkkk kkkk$)
+\\
+  d  bits that specify an Rd (0..31 or 16..31 or 16..23 or 24..30)\\
+  r  bits that specify an Rr ( - ditto - )\\
+  k  bits that specify a constant or an address\\
+  q  bits that specify an offset\\
+  -  bit that specifies pre-decrement mode: 0=no, 1=yes\\
+  +  bit that specifies post-decrement mode: 0=no, 1=yes\\
+  x  bit of any value\\
+  s  bits that specify a status bit (0..7)\\
+  A  bits that specify i/o memory\\
+  b  bits that define a bit (0..7)\\
 
 \end{frame}
+%--------------------------------------------------------
+
 %--------------------------------------------------------
 \section{Code Implementation}
 \begin{frame}
