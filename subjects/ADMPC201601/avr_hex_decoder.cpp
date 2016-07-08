@@ -7,6 +7,7 @@
 #define little_endian true
 
 // Macros for string processing
+#define clean(s) sprintf((s),"")
 #define cut(s,i,sz) ((s).substr((i),(sz)))
 #define to_c(s) ((s).c_str())
 #define getHex(s,n) (sscanf(s,"%x",&(n)))
@@ -62,8 +63,7 @@ int parse_cmd(string &str, string &cmds) {
 	cmds = "";
 	if(!str.size() || ':' != str[0] ){
 		return -EINVAL;
-	}
-	
+	}	
 	/**
 	* Byte Count: two hex digits, indicating
 	* the number of bytes (hex digit pairs) 
@@ -72,7 +72,6 @@ int parse_cmd(string &str, string &cmds) {
 	getHex(to_c(cut(str,idx,2)),byteCount);
 	idx += 2;
 	DEBUG("byteCount: %02d %02x\n",byteCount,byteCount);
-
 	/** 
 	* Address: four hex digits, representing 
 	* the 16-bit beginning memory address offset
@@ -82,7 +81,6 @@ int parse_cmd(string &str, string &cmds) {
 	idx += 4;
 	DEBUG("address: %04d %04x\n",address,address);
 	DEBUG("start address: %04d %04x\n",address/2,address/2);
-
 	/** Record type: (see record types below),
 	* two hex digits, 00 to 05, defining the 
 	* meaning of the data field.
@@ -96,14 +94,12 @@ int parse_cmd(string &str, string &cmds) {
 	getHex(to_c(cut(str,idx,2)),recordType);
 	idx += 2;
 	DEBUG("recordType: %02d %02x\n",recordType,recordType);
-
 	/** Data: a sequence of n bytes of data, represented
 	* by 2n hex digits.
 	**/
 	cmds = cut(str,idx,2*byteCount);
 	idx += 2*byteCount;
 	DEBUG("data: %s\n",to_c(cmds));
-
 	/** Checksum, two hex digits, a computed value that
 	* can be used to verify the record has no errors.
 	**/
@@ -115,17 +111,16 @@ int parse_cmd(string &str, string &cmds) {
 void op0xzz(int &opCode) {
 	int B = get4Bits(opCode,2);
 	int d=0, r=0;
-	string cmd, param;
+	string cmd, param = "";
+	clean(tmp);
 	DEBUG("OpCode 0x%x B0x%x\n",opCode,B);
 	if(0 == B){
 		cmd = (0 == opCode) ? "nop" : "[R]";
-		param = "";
 	}else if(0x4 <= B){
 		cmd = (0xC<=B)?"add":((0x8<=B)?"sbc":"cpc");
 		r = shiftBits(getBit(opCode,9),4) + get4Bits(opCode,0);
 		d = shiftBits(getBit(opCode,8),4) + get4Bits(opCode,1);
 		sprintf(tmp,"R%d, R%d",d,r);
-		param = tmp;
 	}else {
 		switch(B){
 			case 1:
@@ -152,8 +147,8 @@ void op0xzz(int &opCode) {
 			}
 		}
 		sprintf(tmp,"R%d, R%d",d,r);
-		param = tmp;
 	}
+	param = tmp;
 	AVR_EXE("%s\n",to_c(cmd+" "+param));
 }
 
@@ -161,7 +156,7 @@ void op1_2xzz(int &opCode) {
 	int B = get4Bits(opCode,2) >> 2;
 	int A = get4Bits(opCode,3);
 	string cmds[2][4] = {{"cpse","cp","sub","adc"},{"and","eor","or","mov"}};
-	string cmd, param;
+	string cmd, param = "";
 	int r = shiftBits(getBit(opCode,9),4) + get4Bits(opCode,0);
 	int d = shiftBits(getBit(opCode,8),4) + get4Bits(opCode,1);
 	sprintf(tmp,"R%d, R%d",d,r);
@@ -178,6 +173,7 @@ void op3_7xzz(int &opCode){
 	string cmd, param, cmds[] = {"cpi","sbci","subi","ori","andi"};
 	cmd = cmds[A - 0x3];
 	sprintf(tmp,"R%d, %d",d,k);
+	param = tmp;
 	AVR_EXE("%s\n",to_c(cmd+" "+param));
 }
 void op8xzz(int &opCode){
@@ -188,17 +184,70 @@ void op8xzz(int &opCode){
 	AVR_EXE("%s\n",to_c(cmd));
 }
 void op9xzz(int &opCode){
-	int B = get4Bits(opCode,2);
+	int B = get4Bits(opCode,2), C;
+	int D = get4Bits(opCode,0);
 	int r=0, d=0, b=0, A=0, K=0;
-	string cmd, param;
+	int bp = getBit(opCode,0);
+	int bm = getBit(opCode,1);
+	int xy = getBit(opCode,2);
+	string cmd, param="";
+	clean(tmp);
 	// Lets write everything and then optimize
 	switch(B) {
-		case 0x0:{break;}
-		case 0x1:{break;}
-		case 0x2:{break;}
-		case 0x3:{break;}
-		case 0x4:{break;}
-		case 0x5:{break;}
+		case 0x0: case 0x1: case 0x2:
+		case 0x3: case 0x4: case 0x5:{
+			C = B >> 1;
+			switch(C) {
+				case 0: {
+					d = shiftBits(getBit(opCode,8),4) + get4Bits(opCode,1);
+					if(C == 0xF){
+						cmd = "pop";
+						sprintf(tmp,"R%d",d);
+					} else if(C > 0x7){
+						cmd = "ld";
+						sprintf(tmp,"R%d, %s%c%s",d,bm?"-":"",xy?'X':'Y',bp?"-":"");
+					} else if (C > 0x3) {
+						cmd = string(bm?"e":"") + "lpm";
+						sprintf(tmp,"R%d, Z%s",d,bp?"+":"");
+					} else if(C > 0x0){
+						cmd = "ld";
+						sprintf(tmp,"R%d, %sZ%s",d,bm?"-":"",bp?"-":"");
+					} else {
+						cmd = "lds";
+						sprintf(tmp,"*");
+					}
+					break;
+				}
+				case 1: {
+					r = shiftBits(getBit(opCode,8),4) + get4Bits(opCode,1);
+					if(C == 0xF){
+						cmd = "push";
+						sprintf(tmp,"R%d",d);
+					} else if(C > 0x7){
+						cmd = "st";
+						sprintf(tmp,"R%d, %s%c%s",d,bm?"-":"",xy?'X':'Y',bp?"-":"");
+					} else if (C > 0x3) {
+						cmd = "???";
+					} else if(C > 0x0){
+						cmd = "st";
+						sprintf(tmp,"R%d, %sZ%s",d,bm?"-":"",bp?"-":"");
+					} else {
+						cmd = "sts";
+						sprintf(tmp,"*");
+					}
+					break;
+				}
+				case 2: {
+					d = shiftBits(getBit(opCode,8),4) + get4Bits(opCode,1);
+					string cmds[0x10] = {"com","neg","swap","inc","[R]","asr",
+					"lsr","ror","sec","ijmp","dec","des","jmp","call","call"};
+					cmd = cmds[B&1][D];
+					sprintf(tmp,"R%d",d);
+					break;
+				}
+			}
+			break;
+		}
 		case 0x6: case 0x7:{
 			cmd=(B==0x6)?"adiw":"sbiw";
 			K = shiftBits(getByte(opCode,1)>>2,2) + getByte(opCode,0);
@@ -213,7 +262,6 @@ void op9xzz(int &opCode){
 			string cmds[] = {"cbi","sbic","sbi","sbis"};
 			cmd = cmds[BB];
 			sprintf(tmp,"%d, %d",A,b);
-			param = tmp;
 			break;
 		}
 		case 0xC: case 0xD: case 0xE: case 0xF:{
@@ -221,10 +269,10 @@ void op9xzz(int &opCode){
 			r = shiftBits(getBit(opCode,9),4) + get4Bits(opCode,0);
 			d = shiftBits(getBit(opCode,8),4) + get4Bits(opCode,1);
 			sprintf(tmp,"R%d, R%d",d,r);
-			param = tmp;
 			break;
 		}
 	}
+	param = tmp;
 	AVR_EXE("%s\n",to_c(cmd+" "+param));
 }
 void opAxzz(int &opCode){
