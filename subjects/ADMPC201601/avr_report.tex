@@ -68,7 +68,27 @@ Universidad Aut\'onoma de Guadalajara  \\ % Your institution for the title page
 %--------------------------------------------------------
 
 %--------------------------------------------------------
-\section{Summary} 
+\section{Introduction} 
+\begin{frame}
+\frametitle{Introduction}
+Most are single 16 bit words; four marked * have a second word
+to define an address or address extension ($kkkk kkkk kkkk kkkk$)
+\\
+\begin{itemize}
+\item  d  bits that specify an Rd (0..31 or 16..31 or 16..23 or 24..30)\\
+\item  r  bits that specify an Rr ( - ditto - )\\
+\item  k  bits that specify a constant or an address\\
+\item  q  bits that specify an offset\\
+\item  -  bit that specifies pre-decrement mode: 0=no, 1=yes\\
+\item  +  bit that specifies post-decrement mode: 0=no, 1=yes\\
+\item  x  bit of any value\\
+\item  s  bits that specify a status bit (0..7)\\
+\item  A  bits that specify i/o memory\\
+\item  b  bits that define a bit (0..7)\\
+\end{itemize}
+\end{frame}
+%--------------------------------------------------------
+\section{Instruction Summary} 
 \subsection{Blocks of 256 instructions}
 \begin{frame}
 \frametitle{Summary Table I}
@@ -77,11 +97,11 @@ Universidad Aut\'onoma de Guadalajara  \\ % Your institution for the title page
     \begin{tabular}{| l | l | l | l | l | l | l | l | l |}
     \hline
     - & x0zz & x1zz & x2zz & x3zz & x4zz & x5zz & x6zz & x7zz \\    \hline
-    0xzz & & & & & & & & \\ \hline
-    1xzz & & & & & & & & \\ \hline
-    2xzz & & & & & & & & \\ \hline
-    3xzz & & & & & & & & \\ \hline
-    4xzz & & & & & & & & \\ \hline
+    0xzz & [R] nop & movw & muls & fmul & cpc & cpc & cpc  & cpc \\ \hline
+    1xzz & cpse & cpse & cpse & cpse & cp & cp & cp & cp \\ \hline
+    2xzz & and & and & and & and & eor & eor & eor & eor \\ \hline
+    3xzz & cpi & cpi & cpi & cpi & cpi & cpi & cpi & cpi \\ \hline
+    4xzz & sbci & sbci & sbci & sbci & sbci & sbci & sbci & sbci \\ \hline
     5xzz & & & & & & & & \\ \hline
     6xzz & & & & & & & & \\ \hline
     7xzz & & & & & & & & \\ \hline
@@ -129,19 +149,7 @@ Universidad Aut\'onoma de Guadalajara  \\ % Your institution for the title page
 \begin{frame}
 \frametitle{C++}
 
-Most are single 16 bit words; four marked * have a second word
-to define an address or address extension ($kkkk kkkk kkkk kkkk$)
-\\
-  d  bits that specify an Rd (0..31 or 16..31 or 16..23 or 24..30)\\
-  r  bits that specify an Rr ( - ditto - )\\
-  k  bits that specify a constant or an address\\
-  q  bits that specify an offset\\
-  -  bit that specifies pre-decrement mode: 0=no, 1=yes\\
-  +  bit that specifies post-decrement mode: 0=no, 1=yes\\
-  x  bit of any value\\
-  s  bits that specify a status bit (0..7)\\
-  A  bits that specify i/o memory\\
-  b  bits that define a bit (0..7)\\
+
 
 \end{frame}
 %--------------------------------------------------------
