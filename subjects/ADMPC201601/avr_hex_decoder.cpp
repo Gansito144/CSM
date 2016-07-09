@@ -27,7 +27,7 @@ using namespace std;
 char tmp[102];
 
 // Just for debugging process
-#if 1
+#if 0
 char logs[123456];
 #define DEBUG(...) sprintf(logs,__VA_ARGS__)
 #else 
@@ -45,7 +45,7 @@ int checksum_ok(string &str, int &size, int &checkSum) {
 		getHex(to_c(cut(str,i,2)),twoByte);
 		check += twoByte;
 		check &= 0xFF;
-		DEBUG("i(%d) %x %d %x\n",i,twoByte,twoByte,check);
+		// DEBUG("i(%d) %x %d %x\n",i,twoByte,twoByte,check);
 	}
 	// Two complement of a function
 	check = (~check) + 1;
@@ -162,7 +162,6 @@ void op1_2xzz(int &opCode) {
 	sprintf(tmp,"R%d, R%d",d,r);
 	param = tmp;
 	cmd = cmds[A-1][B];
-	DEBUG("OpCode 0x%x B0x%x\n",opCode,B);
 	AVR_EXE("%s\n",to_c(cmd+" "+param));
 }
 
@@ -366,7 +365,7 @@ Handler oAxzz[] = {
 void execute_cmd( int &opCode ) {
 	int A = get4Bits(opCode,3);
 	// Delegate the responsability to next functions
-	DEBUG("A (%02d) (%x)",A,A);
+	DEBUG("A (%02d) (%x)\n",A,A);
 	oAxzz[A](opCode);
 }
 
