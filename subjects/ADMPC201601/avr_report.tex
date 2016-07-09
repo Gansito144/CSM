@@ -331,6 +331,27 @@ void execute_cmd( int &opCode ) {
 \end{frame}
 %--------------------------------------------------------
 %--------------------------------------------------------
+\begin{frame}[fragile]
+\frametitle{ Example of OpCode decodification}
+\begin{example}[When the 2 most significative nibble is within range 3,7]
+\begin{lstlisting}
+void op3_7xzz(int &opCode){
+   int k = shiftBits(get4Bits(opCode,2),8);
+        k += get4Bits(opCode,0);
+   int A = get4Bits(opCode,3);
+   int d = get4Bits(opCode,1);
+   string cmd, param;
+   string cmds[] = {"cpi","sbci","subi","ori","andi"};
+   cmd = cmds[A - 0x3];
+   sprintf(tmp,"R%d, %d",d,k);
+   param = tmp;
+   AVR_EXE("%s\n",to_c(cmd+" "+param));
+}
+\end{lstlisting}
+\end{example}
+\end{frame}
+%--------------------------------------------------------
+%--------------------------------------------------------
 \begin{frame}
 \frametitle{ References }
 \begin{itemize}

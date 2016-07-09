@@ -27,7 +27,7 @@ using namespace std;
 char tmp[102];
 
 // Just for debugging process
-#if 0
+#if 1
 char logs[123456];
 #define DEBUG(...) sprintf(logs,__VA_ARGS__)
 #else 
@@ -216,8 +216,7 @@ void op9xzz(int &opCode){
 						sprintf(tmp,"*");
 					}
 					break;
-				}
-				case 1: {
+				} case 1: {
 					r = shiftBits(getBit(opCode,8),4) + get4Bits(opCode,1);
 					if(C == 0xF){
 						cmd = "push";
@@ -235,26 +234,24 @@ void op9xzz(int &opCode){
 						sprintf(tmp,"*");
 					}
 					break;
-				}
-				case 2: {
+				} case 2: {
 					d = shiftBits(getBit(opCode,8),4) + get4Bits(opCode,1);
+					DEBUG(" B 0x%x - C 0x%x - D 0x%x\n",B,C,D);
 					string cmds[0x10] = {"com","neg","swap","inc","[R]","asr",
 					"lsr","ror","sec","ijmp","dec","des","jmp","call","call"};
-					cmd = cmds[B&1][D];
+					cmd = cmds[D];
 					sprintf(tmp,"R%d",d);
 					break;
 				}
 			}
 			break;
-		}
-		case 0x6: case 0x7:{
+		} case 0x6: case 0x7:{
 			cmd=(B==0x6)?"adiw":"sbiw";
 			K = shiftBits(getByte(opCode,1)>>2,2) + getByte(opCode,0);
 			d = getByte(opCode,1) & 0x3;
 			sprintf(tmp,"R%d:R%d, %d",d+1,d,K);
 			break;
-		}
-		case 0x8: case 0x9: case 0xA: case 0xB:{
+		} case 0x8: case 0x9: case 0xA: case 0xB:{
 			int BB = B & 0x7;
 			A = shiftBits(get4Bits(opCode,1),1) + getBit(opCode,3);
 			b = opCode & 0x7;
@@ -262,8 +259,7 @@ void op9xzz(int &opCode){
 			cmd = cmds[BB];
 			sprintf(tmp,"%d, %d",A,b);
 			break;
-		}
-		case 0xC: case 0xD: case 0xE: case 0xF:{
+		} case 0xC: case 0xD: case 0xE: case 0xF:{
 			cmd = "mul";
 			r = shiftBits(getBit(opCode,9),4) + get4Bits(opCode,0);
 			d = shiftBits(getBit(opCode,8),4) + get4Bits(opCode,1);
@@ -365,7 +361,7 @@ Handler oAxzz[] = {
 void execute_cmd( int &opCode ) {
 	int A = get4Bits(opCode,3);
 	// Delegate the responsability to next functions
-	DEBUG("A (%02d) (%x)\n",A,A);
+	DEBUG("A (%02d) (0x%x)\n",A,A);
 	oAxzz[A](opCode);
 }
 
@@ -375,7 +371,6 @@ void split_cmds(string &cmds) {
 	int opCode, swapCode;
 	for(int i=0; i<cmds.size(); i += 4) {
 		getHex(to_c(cut(cmds,i,4)),opCode);
-		DEBUG("opCode: %04d %04x\n",opCode,opCode);
 		/** Now that we know each opcode lets 'execute' them
 		* Each opcode is an int of 16 bits
 		**/
@@ -385,6 +380,7 @@ void split_cmds(string &cmds) {
 			swapCode |= shiftBits(getByte(opCode,1),0);
 			opCode = swapCode;
 		}
+		DEBUG("opCode: 0x%04x\n",opCode);
 		execute_cmd(opCode);
 	}
 }
