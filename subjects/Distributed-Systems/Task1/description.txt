@@ -1,0 +1,10 @@
+Aplicar los conocimientos acerca de programación de red para resolver los siguientes ejercicios
+(cada inciso implica la subida de archivos empaquetados por cada uno de ellos).
+
+#TODO
+1.- Realizar una aplicación cliente-servidor que utilice Datagramas.
+2.- Realizar una aplicación cliente-servidor que utilice Flujo de datos.
+3.- Realizar una aplicación cliente-servidor en la que el servidor acepte más de una conexión para diferentes clientes (con flujo de datos).
+4.- Realizar una aplicación para comunicar un cliente con un grupo multicast.
+5.- Integrar las aplicaciones de los incisos 2 y 4. Es decir, que implemente un overlay de multicast con flujo de datos.
+6.- Realizar una aplicación cliente-servidor en la que se muestre el proceso de serialización de un archivo de tipo binario. Por ejemplo de audio, video, o PDF.

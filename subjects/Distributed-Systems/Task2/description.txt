@@ -1,0 +1,3 @@
+El estudiante desarrollara una aplicación cliente-servidor que utilice el protocolo de comunicación HTTP. 
+
+La mecánica para entregar la tarea es enviar el código en un paquete zip, rar o tar.gz/bz2. a través de la plataforma aprende.uag.mx

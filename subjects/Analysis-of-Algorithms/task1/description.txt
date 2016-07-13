@@ -1,0 +1,8 @@
+Implementar y comparar los siguientes algoritmos de ordenamiento:
+
+* Merge Sort
+* Quick Sort (Pivote en medio)
+* Heap Sort
+
+* Personal: Agregar hilos a los primeros dos algoritmos
+

@@ -1,0 +1,1 @@
+Desarrollar un sistema de publicación suscripción en base a la arquitectura presentada en la diapositiva 36 de la presentación correspondiente al tema.

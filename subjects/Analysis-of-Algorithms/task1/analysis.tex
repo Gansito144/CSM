@@ -1,0 +1,312 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beamer Presentation
+% LaTeX Template
+% Version 1.0 (10/11/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
+\documentclass{beamer}
+
+\mode<presentation> {
+
+% The Beamer class comes with a number of default slide themes
+% which change the colors and layouts of slides. Below this is a list
+% of all the themes, uncomment each in turn to see what they look like.
+
+%\usetheme{default}
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%%\usetheme{Boadilla}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%%\usetheme{Dresden}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+% As well as themes, the Beamer class has a number of color themes
+% for any slide theme. Uncomment each of these in turn to see how it
+% changes the colors of your current slide theme.
+
+%\usecolortheme{albatross}
+\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{orchid}
+%\usecolortheme{rose}
+%\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+%\usecolortheme{whale}
+%\usecolortheme{wolverine}
+
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+%\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+%\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{lmodern}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{listings} % C++ code
+\lstset{language=C++,
+                basicstyle=\footnotesize\ttfamily,
+                keywordstyle=\footnotesize\color{blue}\ttfamily,
+}
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title[Sorting Algorithms]{Sorting Algorithms Analysis} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author{Ulises M\'endez Mart\'{i}nez} % Your name
+\institute[UTM] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+{
+Design and Analysis of Algorithms 2016-01 \\ % Your institution for the title page
+\medskip
+\textit{ulisesmdzmtz@gmail.com} % Your email address
+}
+\date{\today} % Date, can be changed to a custom date
+
+\begin{document}
+
+\begin{frame}
+\titlepage % Print the title page as the first slide
+\end{frame}
+%---------------------------------------------
+%\begin{frame}
+%\frametitle{Overview} % Table of contents slide, comment this block out to remove it
+%\onslide<2->
+%\begin{figure}
+%\includegraphics[width=0.45\linewidth]{z_image.png}
+%\end{figure}
+
+
+%\end{frame}
+%--------------------------------------------
+\begin{frame}
+\frametitle{Overview} % Table of contents slide, comment this block out to remove it
+\tableofcontents % Throughout your presentation, if you choose to use 
+\end{frame}
+%----------------------------------------------------------------------------------------
+%	PRESENTATION SLIDES
+%----------------------------------------------------------------------------------------
+
+%------------------------------------------------
+\section{Merge Sort} 
+
+
+\begin{frame}[fragile]
+
+\frametitle{Merge Sort}
+
+Is an efficient, general-purpose, comparison-based sorting algorithm, produce a stable sort, which means that preserves the input order of equal elements in the sorted output. Mergesort is a divide and conquer algorithm that was invented by John von Neumann in 1945.
+\subsection{Implementation} 
+\begin{block}{Function call}
+\begin{lstlisting}
+i64 merge_sort(int data[], int size)
+{
+    for(int i=0; i<size; i++) // Initialize
+    {
+        m_array[i] = m_aux[i] = data[i];
+    }
+    i64 movs = merge(m_array,m_aux,0,size-1);
+    return movs;
+}
+\end{lstlisting}
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{ Implementation }
+
+%\begin{example}[ C++ Implementation ]
+\begin{lstlisting}
+i64 merge(int v[], int va[], int L, int R) {
+    i64 cnt = 0LL;
+    if(L<R) {
+        int mid = (L+R)/2;
+        cnt += merge(va, v, L, mid);
+        cnt += merge(va, v, mid+1, R);
+        int i=L, j=mid+1, k=L;
+        while( i<=mid && j<=R ) {
+            if(va[i]<=va[j])
+                v[k++]=va[i++];
+            else {
+                v[k++]=va[j++];
+                cnt+=(mid+1) - i;
+        } }
+        while(i<=mid) v[k++]=va[i++];
+        while(j<= R ) v[k++]=va[j++];
+    }
+    return cnt;
+}
+\end{lstlisting}
+%\end{example}
+
+\end{frame}
+
+
+
+%------------------------------------------------
+\section{Heap Sort} 
+
+\begin{frame}[fragile]
+
+\frametitle{Heap Sort}
+
+Is a comparison-based sorting algorithm. It divides its input into a sorted and an unsorted region, and it iteratively shrinks the unsorted region by extracting the largest element and moving that to the sorted region. The improvement consists of the use of a heap data structure rather than a linear-time search to find the maximum.
+
+\subsection{Implementation}
+\begin{block}{Function call}
+\begin{lstlisting}
+void heap_sort(int data[], int size) {
+    heap_init();
+    for(int i=1; i<=size; i++){
+        heap_insert(h_aux, data[i-1]);
+    }
+    for(int i = 0; i < size; i++){
+        heap_delete(h_aux, h_array[i]);
+    }
+}
+\end{lstlisting}
+\end{block}
+
+\end{frame}
+
+\begin{frame}[fragile]
+
+\frametitle{Insertion}
+
+\begin{block}{Insert function}
+\begin{lstlisting}
+void heap_insert(int heap[], int val) {
+    int parent=0, node=++h_size;
+    heap[node] = val;
+    while(!is_root(node)) {
+        parent = get_parent(node);
+        if(heap[node] >= heap[parent])
+            break;
+        swap(heap[node], heap[parent]);
+        node = parent;
+        }
+}
+\end{lstlisting}
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Deletion}
+\begin{block}{Delete function}
+\begin{lstlisting}
+void heap_delete(int heap[], int &val) {
+    val = heap[h_root]; h_size--;
+    if(h_size >= h_root)
+    {   // Set the last element
+        heap[h_root] = heap[h_size+1];
+        int node, small=h_root;
+        do{	node = small;
+            int left = node << 1;
+            int right = left + 1;
+            if(left<=h_size && heap[left]<heap[small])
+                small = left;
+            if(right<=h_size && heap[right]<heap[small])
+                small = right;
+            swap(heap[node],heap[small]);
+        }while(small != node);
+    } }
+\end{lstlisting}
+\end{block}
+
+\end{frame}
+
+%------------------------------------------------
+\section{Quick Sort} 
+\begin{frame}[fragile]
+\frametitle{Quick Sort}
+
+Is an efficient sorting algorithm. Developed by Tony Hoare in 1959. When implemented well, it can be about two or three times faster than its main competitors, merge sort and heapsort.
+
+Quicksort is a comparison sort, meaning that it can sort items of any type for which a "less-than" relation is defined. In efficient implementations it is not a stable sort, meaning that the relative order of equal sort items is not preserved. Quicksort can operate in-place on an array, requiring small additional amounts of memory to perform the sorting.
+
+\subsection{Implementation}
+\begin{block}{Function call}
+\begin{lstlisting}
+void q_sort(int A[], int p, int r) {
+    if(p < r) {
+        int q = partition(A,p,r,q);
+        q_sort(A, p, q-1);
+        q_sort(A, q+1, r);
+    }
+}
+\end{lstlisting}
+\end{block}
+
+\end{frame}
+%------------------------------------------------
+
+%------------------------------------------------
+\section{Comparison}
+
+\begin{frame}
+\frametitle{Input based Comparison}
+\begin{table}
+\small
+\begin{tabular}{| c | c | c | c | c  |}
+\toprule
+$Input$ & Ordered  & Ordered Inverse &  Almost ordered & Random \\ %\hline
+\midrule
+ Merge       &  7547  & 7578  & 9305  & 17387   \\
+ Heap       &  30941  & 45921  & 28126  & 33257   \\
+ QS Fixed      &  37705066  &  25637125  &  2545834  & 19879   \\
+ QS Random      &  12464  &  13249  &  13927  & 22118   \\
+\bottomrule
+
+\end{tabular}
+\caption{Time spent in us}
+\end{table}
+\end{frame}
+
+\section{Comparison}
+\begin{frame}
+\frametitle{Conclusion}
+\begin{block}{Conclusion}
+Based on data obtained, we can conclude the algorithm better fit our propose in time complexity is merge sort, also we could notice an improvement when instead of take the last element in partition section of quick sort we take a random pivot. 
+\end{block}
+\end{frame}
+
+\end{document} 
