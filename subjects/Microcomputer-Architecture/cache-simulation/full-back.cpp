@@ -6,30 +6,43 @@
 
 using namespace std;
 
-const int BITS_MEM = (5);
-const int BITS_CACHE = (2);
-const int BITS_DATA = (2);
+#define shiftL(n, k) ((n)<<(k))
+#define shiftR(n, k) ((n)>>(k))
+#define BITS_MEM  (5)
+#define BITS_CACHE (2)
+#define BITS_DATA (2)
+
 enum{ read, write };
 
-inline int left_shift(int n, int k) {
-	return ((n)<<(k));
-}
+// Memory simulated
+int  rawMemory[ shiftL(1,BITS_MEM)  ];
+int cachedAddr[ shiftL(1,BITS_CACHE)];
+int cachedData[ shiftL(1,BITS_CACHE)];
 
 //helper function to get bits, len shold be at least 1
-inline int get_bits(int n, int len, int from){
-	int bits = (left_shift(1,len))-1;
-	return (((n)>>from)&bits);
+inline int get_bits(int n, int len, int from) {
+	int bits = (shiftL(1,len)) - 1;
+	return (shiftR(n,from)&bits);
 }
 
 // Inline function to search address within cachedA array
-inline int cache_search(int cachedA[], int address){
-	int sz = left_shift(1,BITS_CACHE);
-	for(int i=0; i<sz; ++i) {
-		if(cachedA[i] == address){
-			return i;
-		}
-	}
+inline int cache_search(int address) {
+	int sz = shiftL(1,BITS_CACHE);
+	for(int i=0; i<sz; ++i)
+		if(cachedAddr[i] == address) return i;
 	return -1;
+}
+
+inline int read_cache(int index) {
+	return cachedData[index];
+}
+
+inline void write_cache(int index, int data) {
+	cachedData[index] = data;
+}
+
+inline void update_cache(int address, int data) {
+	/* TODO search the best place to update cache*/
 }
 
 int main() {
@@ -37,16 +50,11 @@ int main() {
 	int address, cmd, rnd, pos;
 	unsigned char dat, wait;
 
-	// Memory simulated
-	unsigned char rawMemory[left_shift(1,BITS_MEM)];
-	int cachedAddresses[left_shift(1,BITS_CACHE)];
-	unsigned char cacheData[left_shift(1,BITS_CACHE)];
-
 	// To simulate the circular queue
 	int front = 0, tail = 0;
 
 	// Initialize the cached Directions
-	memset(cachedAddresses, -1, sizeof cachedAddresses);
+	memset(cachedAddr, -1, sizeof cachedAddr);
 
 	// Feed the seed
 	srand(time(0));
@@ -64,32 +72,34 @@ int main() {
 		
 		//Perform operation according
 		// search in cache
-		pos = cache_search(cachedAddresses, address);
+		pos = cache_search(address);
 		if(cmd == read) {
 			puts("Operation: [Read]");
 			// Was found in cache, just read this value
 			if(pos >= 0) {
-				printf("Address 0x%x found at %d index in cache\n",address,pos);
-				printf("Raw data = 0x%x\n",cacheData[pos]);
+				printf("Address 0x%x found in cache index(%d)\n",address,pos);
+				printf("Data in cache = 0x%x\n",read_cache(pos));
 			}else { // Read from raw memory
-				printf("Address 0x%x not found in cache take it from Raw",address);
-				printf("Raw data = 0x%x\n",rawMemory[address]);
+				printf("Address 0x%x not Found!\n",address);
+				printf("Raw data read = 0x%x\n",rawMemory[address]);
 				// And insert new data into cache
-				printf("Saving new address/data into cache...\n");
-				puts("TODO");
+				update_cache(address, rawMemory[address]);
 			}
 		} else { // write
 			puts("Operation: [Write]");
 			// Was found in cache, just update this value
 			if(pos >= 0) {
-				printf("Address 0x%x found at %d index in cache\n",address,pos);
-				printf("Update cached data = old(0x%x), new(0x%x)\n",(cacheData[pos]),dat);
-				cacheData[pos] = dat;
+				printf("Address 0x%x found in cache index(%d)\n",address,pos);
+				printf("Update cached data, Old[0x%x], New[0x%x]\n",read_cache(pos),dat);
+				write_cache(pos, dat);
 			}else{
-				// Write directly to 	
-				puts("TODO 2");
+				// Write directly to raw 	
+				printf("Address 0x%x not Found!\n",address);
+				printf("Write raw data, New[0x%x]\n",dat);
+				rawMemory[address] = dat;
+				// And insert new data into cache
+				update_cache(address, rawMemory[address]);
 			}
-			
 		}
 
 		wait = getchar();
