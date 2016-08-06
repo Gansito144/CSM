@@ -6,13 +6,25 @@
 
 using namespace std;
 
-const int MEM_SIZE = (1<<20);
-const int CACHE_SIZE = (1<<8);
+const int BITS_MEM = (5);
+const int BITS_CACHE = (2);
+const int BITS_DATA = (2);
 enum{ read, write };
+
+inline int left_shift(int n, int k) {
+	return ((n)<<(k));
+}
+
+//helper function to get bits, len shold be at least 1
+inline int get_bits(int n, int len, int from){
+	int bits = (left_shift(1,len))-1;
+	return (((n)>>from)&bits);
+}
 
 // Inline function to search address within cachedA array
 inline int cache_search(int cachedA[], int address){
-	for(int i=0; i<CACHE_SIZE; ++i) {
+	int sz = left_shift(1,BITS_CACHE);
+	for(int i=0; i<sz; ++i) {
 		if(cachedA[i] == address){
 			return i;
 		}
@@ -26,9 +38,9 @@ int main() {
 	unsigned char dat, wait;
 
 	// Memory simulated
-	unsigned char rawMemory[MEM_SIZE];
-	int cachedAddresses[CACHE_SIZE];
-	unsigned char cacheData[CACHE_SIZE];
+	unsigned char rawMemory[left_shift(1,BITS_MEM)];
+	int cachedAddresses[left_shift(1,BITS_CACHE)];
+	unsigned char cacheData[left_shift(1,BITS_CACHE)];
 
 	// To simulate the circular queue
 	int front = 0, tail = 0;
@@ -36,24 +48,25 @@ int main() {
 	// Initialize the cached Directions
 	memset(cachedAddresses, -1, sizeof cachedAddresses);
 
-	// Plant the seed
+	// Feed the seed
 	srand(time(0));
 
 	// Infinit Loop
 	while(true){
 		// Each command is 32 bits,
 		rnd = rand();
-		// 19...0 bits for address
-		address = ((rnd)&(0xFFFFF));
-		// 27...20 bits for data
-		dat = (((rnd)&(0xF00000))>>20);
-		// 28 bit indicates operation type 0:read 1:write
-		cmd  = ((rnd>>28)&(1));
+		// 0 - bit indicates operation type 0:read 1:write
+		cmd = get_bits(rnd,1,0);
+		// 20...1 bits for address
+		address = get_bits(rnd,BITS_MEM,1);
+		// 28...21 bits for data
+		dat = get_bits(rnd,BITS_DATA,BITS_MEM + 1);
 		
 		//Perform operation according
 		// search in cache
 		pos = cache_search(cachedAddresses, address);
 		if(cmd == read) {
+			puts("Operation: [Read]");
 			// Was found in cache, just read this value
 			if(pos >= 0) {
 				printf("Address 0x%x found at %d index in cache\n",address,pos);
@@ -63,15 +76,20 @@ int main() {
 				printf("Raw data = 0x%x\n",rawMemory[address]);
 				// And insert new data into cache
 				printf("Saving new address/data into cache...\n");
-				/*TODO*/
+				puts("TODO");
 			}
 		} else { // write
+			puts("Operation: [Write]");
 			// Was found in cache, just update this value
 			if(pos >= 0) {
 				printf("Address 0x%x found at %d index in cache\n",address,pos);
-				printf("Update data = 0x%x\n",(cacheData[pos] = data));
-			} /*TODO*/
-			// update in cache
+				printf("Update cached data = old(0x%x), new(0x%x)\n",(cacheData[pos]),dat);
+				cacheData[pos] = dat;
+			}else{
+				// Write directly to 	
+				puts("TODO 2");
+			}
+			
 		}
 
 		wait = getchar();
