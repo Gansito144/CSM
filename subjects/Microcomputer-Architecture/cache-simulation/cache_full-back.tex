@@ -1,0 +1,254 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beamer Presentation
+% LaTeX Template
+% Version 1.0 (10/11/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
+\documentclass{beamer}
+
+\mode<presentation> {
+
+\usetheme{Madrid}
+\usecolortheme{dolphin}
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+%\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+%\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+
+\usepackage{graphicx} % Allows including images
+\usepackage{ragged2e} % Jusitfy
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{lmodern}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{multicol}
+\usepackage{listings} % C++ code
+\lstset{language=C++,
+                basicstyle=\footnotesize\ttfamily,
+                keywordstyle=\footnotesize\color{blue}\ttfamily,
+}
+\addtobeamertemplate{block begin}{}{\justifying} %Justify
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title[Fully Associative Write-Back]{Fully Associative Write-Back \\ \small (Cache Simulation) } % The short title appears at the bottom of every slide,
+%the full title is only on the title page
+\author{Ulises M\'endez Mart\'{i}nez} % Your name
+\institute[UAG] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+{
+Universidad Aut\'onoma de Guadalajara  \\ % Your institution for the title page
+\medskip
+\textit{ulisesmdzmtz@gmail.com} % Your email address
+}
+\date{\today} % Date, can be changed to a custom date
+
+\begin{document}
+\begin{frame}
+\titlepage % Print the title page as the first slide
+\end{frame}
+%--------------------------------------------------------
+%-- OVERVIEW SECTION
+%--------------------------------------------------------
+\begin{frame}
+\frametitle{Overview} % Table of contents slide, comment this block out to remove it
+\tableofcontents % Throughout your presentation, if you choose to use 
+\end{frame}
+%--------------------------------------------------------
+%	PRESENTATION SLIDES
+%--------------------------------------------------------
+\section{Cache Simulation}
+%--------------------------------------------------------
+\subsection{Fully Associative} 
+\begin{frame}
+\frametitle{Fully Associative}
+\begin{block}{Fully Associative Cache}
+A cache where data from any address can be stored in any cache location. The whole address must be used as the tag. All tags must be compared simultaneously (associatively) with the requested address and if one matches then its associated data is accessed.
+\end{block}
+\end{frame}
+%--------------------------------------------------------
+\subsection{Write Back}
+\begin{frame}
+\frametitle{Write Back}
+\begin{block}{Write Back}
+Write back is a storage method in which data is written into the cache every time a change occurs, but is written into the corresponding location in main memory only at specified intervals or under certain conditions.
+\end{block}
+\end{frame}
+%--------------------------------------------------------
+%--------------------------------------------------------
+\section{Code Implementation}
+%--------------------------------------------------------
+\subsection{Helper Macros}
+\begin{frame}[fragile]
+\frametitle{ Starting code }
+\begin{example}[ Helpers Macros  for bit manipulation ]
+\begin{lstlisting}
+#define shiftL(n, k) ((n)<<(k))
+#define shiftR(n, k) ((n)>>(k))
+#define BITS_MEM   (20)
+#define BITS_CACHE (8)
+#define BITS_DATA  (8)
+\end{lstlisting}
+\end{example}
+\end{frame}
+%--------------------------------------------------------
+\subsection{Debug Simulation}
+\begin{frame}[fragile]
+\frametitle{ Commands Simulation }
+\begin{example}[ Debug Simulation]
+\begin{lstlisting}
+//helper function to get bits, len shold be at least 1
+inline int get_bits(int n, int len, int from) {
+  int bits = (shiftL(1,len)) - 1;
+  return (shiftR(n,from)&bits);
+}
+... // within the main function
+    // Each command is 32 bits,
+    rnd = rand();
+    // 0 - bit indicates operation type 0:read 1:write
+    cmd = get_bits(rnd,1,0);
+    // 20...1 bits for address
+    address = get_bits(rnd,BITS_MEM,1);
+    // 28...21 bits for data
+    dat = get_bits(rnd,BITS_DATA,BITS_MEM + 1);
+\end{lstlisting}
+\end{example}
+\end{frame}
+%--------------------------------------------------------
+\subsection{Search in cache operation}
+\begin{frame}[fragile]
+\frametitle{Search in cache operation}
+\begin{example}[ Search in cache ]
+\begin{lstlisting}
+// Inline function to search address within cachedA array
+// In real life all operations are done in parallel
+inline int cache_search(int address) {
+  int sz = shiftL(1,BITS_CACHE);
+  for(int i=0; i<sz; ++i)
+    if(cachedAddr[i] == address) return i;
+  return -1;
+}
+... // Within the main function    
+    //Perform operation according
+    // search in cache
+    pos = cache_search(address);
+\end{lstlisting}
+\end{example}
+\end{frame}
+%--------------------------------------------------------
+\subsection{Utils operations}
+\begin{frame}[fragile]
+\frametitle{Utils operations}
+\begin{example}[Utils operations]
+\begin{lstlisting}
+// We know the position read data cached
+inline int read_cache(int index) {
+  return cachedData[index];
+}
+// Read from an specific address
+inline int read_raw(int address) {
+  return rawMemory[address];
+}
+// We know the position write data in cache
+inline void write_cache(int index, int data) {
+  cachedData[index] = data;
+}
+// Write to an specific address
+inline void write_raw(int address, int data) {
+  rawMemory[address] = data;
+}
+\end{lstlisting}
+\end{example}
+\end{frame}
+%--------------------------------------------------------
+\subsection{Read operation}
+\begin{frame}[fragile]
+\frametitle{Read operation}
+\begin{example}[Read operation]
+\begin{lstlisting}
+if(cmd == read) {
+  puts("Operation: [Read]");
+  // Was found in cache, just read this value
+  if(pos >= 0) {
+    printf("Address 0x%x found ... index(%d)\n",address,pos);
+    printf("Data in cache = 0x%x\n",read_cache(pos));
+  }else { // Read from raw memory
+    printf("Address 0x%x not Found!\n",address);
+    printf("Raw data read = 0x%x\n",rawMemory[address]);
+    // And insert new data into cache
+    update_cache(address, read_raw(address));
+  }
+}
+\end{lstlisting}
+\end{example}
+\end{frame}
+%--------------------------------------------------------
+\subsection{Write operation}
+\begin{frame}[fragile]
+\frametitle{Write operation}
+\begin{example}[Write operation]
+\begin{lstlisting}
+... { // write
+  puts("Operation: [Write]");
+  // Was found in cache, just update this value
+  if(pos >= 0) {
+    Log("Address 0x%x found ... index(%d)\n",address,pos);
+    Log("Update ...  New[0x%x]\n",read_cache(pos),dat);
+    write_cache(pos, dat);
+  }else{
+    // Write directly to raw   
+    Log("Address 0x%x not Found!\n",address);
+    Log("Write raw data, New[0x%x]\n",dat);
+    write_raw(address, dat);
+    // And insert new data into cache
+    update_cache(address, read_raw(address));
+  }
+}
+\end{lstlisting}
+\end{example}
+\end{frame}
+%--------------------------------------------------------
+\subsection{Update operation}
+\begin{frame}[fragile]
+\frametitle{Update operation}
+\begin{example}[Update operation]
+\begin{lstlisting}
+// Check if write - back is needed 
+inline void update_cache(int address, int data) {
+    // get next position in the circular queue
+    tail = (tail + 1) % shiftL(1,BITS_CACHE);
+    // The cached was already used need to write back
+    // the values to the raw memory
+    if(cachedAddr[tail] != -1) {
+      printf("Address 0x%x left cache\n",cachedAddr[tail]);
+      printf("Backup Data[0x%x] to Raw memory\n",read_cache(tail));
+      write_raw(cachedAddr[tail], read_cache(tail));
+    }
+    // Update the cache address and data
+    printf("New address 0x%x stored in cache at pos %d\n",address,tail);
+    cachedAddr[tail] = address;
+    write_cache(tail, data);
+}
+\end{lstlisting}
+\end{example}
+\end{frame}
+%--------------------------------------------------------
+
+\begin{frame}
+\Huge{\centerline{ Q \& A }}
+\end{frame}
+
+\end{document} 
