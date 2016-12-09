@@ -26,6 +26,9 @@ library(rminer)       # used in paper reference
 library(rattle)       # for fancy plot
 library(rpart.plot)   # for fancy plot
 library(RColorBrewer) # for fancy plot
+# To test random forest
+# install.packages('randomForest', repos = "http://cran.us.r-project.org")
+library(randomForest)
 ```
 
 ### 1.- Load & Prepare Data Sets 
@@ -306,7 +309,7 @@ As we saw in previous steps there a couple of factor which influence more, lets 
 
 ```R
 # Tree
-tree5 <- rpart(passed~Mjob+Pstatus+Medu++Fjob+romantic+freetime+absences+alcohol+failures,data= math, method="class")
+tree5 <- rpart(passed~Mjob+Pstatus+Medu+Fjob+romantic+freetime+absences+alcohol+failures,data= math, method="class")
 # Plot
 fancyRpartPlot(tree5)
 ```
@@ -355,3 +358,146 @@ Within the possibilities for future work are the following items:
 * Exchange data set and now train the model using portuguese data set and test it using math set.
 * Use the full range of quaifycations for G3 instead of just passed or not valued.
 * New analysis using **Local Data from local university**, and including parameters like *time consumed in social networks*, *previous year scores*, *etc.*
+
+### 7.- Random Forests
+
+As a continuation of previous steps we continued our analysis this time using random forests
+
+#### 7.0.1.- Initialize the randomness
+Just in order to keep the results equals trough the multiple iterations of this work
+
+
+```R
+# Value inside does not matter just to keep consistency
+set.seed(444)
+```
+
+#### 7.1 Initial random forests
+
+So lets started using basic random forest with all values
+
+
+```R
+# Simple Random forest with all values
+rndtree1 <- randomForest(as.factor(passed) ~ sex + age + famsize + Pstatus + Medu 
+            + Fedu + Mjob + Fjob + traveltime + failures + schoolsup
+            + famsup + romantic + famrel + freetime + absences + alcohol
+            ,data = math, importance=TRUE, ntree=2000)
+varImpPlot(rndtree1)
+```
+
+
+![png](output_43_0.png)
+
+
+
+```R
+# Prediction
+rfpred1 <- predict(rndtree1, port, type = "class")
+# Error
+rferr1 <- table(rfpred1 == port$passed)
+prop.table(rferr1)
+```
+
+
+
+
+    
+        FALSE      TRUE 
+    0.2357473 0.7642527 
+
+
+
+Actually it was not the best prediction we made so far (**76%** vs **84%**), but as we will see in the next step, it could be improved.
+
+#### 7.2.- Forest of Conditional Inference Trees
+
+Lets's use another type of trees for our forests and see what happens
+
+
+```R
+# Simple Conditional Forests with all values
+rndtree2 <- cforest(as.factor(passed) ~ sex + age + famsize + Pstatus + Medu 
+            + Fedu + Mjob + Fjob + traveltime + failures + schoolsup
+            + famsup + romantic + famrel + freetime + absences + alcohol
+            ,data = math, controls=cforest_unbiased(ntree=2000, mtry=5))
+
+# Prediction
+rfpred2 <- predict(rndtree2, port, OOB=TRUE, type = "response")
+
+# Error
+rferr2 <- table(rfpred2 == port$passed)
+prop.table(rferr2)
+```
+
+
+
+
+    
+        FALSE      TRUE 
+    0.1432974 0.8567026 
+
+
+
+And we did it again, we improve our guesses by **1%** to get a total of **85.5%** now we can disccard or to add some other more variants to try to increase this indicators. 
+
+#### 7.3 Yet Another Random Forest
+Lets use only the relevant variables we found in the step **4**, and see if using less variables increases our chance to be correct.
+
+
+```R
+# Simple Conditional Forests with all values
+rndtree3 <- cforest(as.factor(passed) ~ Mjob + Pstatus + Medu + 
+             Fjob + romantic + freetime + absences + alcohol + failures
+            ,data = math, controls=cforest_unbiased(ntree=2000, mtry=5))
+
+# Prediction
+rfpred3 <- predict(rndtree3, port, OOB=TRUE, type = "response")
+
+# Error
+rferr3 <- table(rfpred3 == port$passed)
+prop.table(rferr3)
+```
+
+
+
+
+    
+        FALSE      TRUE 
+    0.1386749 0.8613251 
+
+
+
+Well the result varies from **85.8%** to **86%** which is in general a slightly better but not by far. So let's use the top 5 of relevant values from point **7.0**
+
+
+```R
+# Simple Conditional Forests with all values
+rndtree4 <- cforest(as.factor(passed) ~ failures + absences + schoolsup + alcohol + age
+            ,data = math, controls=cforest_unbiased(ntree=2000, mtry=3))
+
+# Prediction
+rfpred4 <- predict(rndtree4, port, OOB=TRUE, type = "response")
+
+# Error
+rferr4 <- table(rfpred4 == port$passed)
+prop.table(rferr4)
+```
+
+
+
+
+    
+        FALSE      TRUE 
+    0.1432974 0.8567026 
+
+
+
+We had to decrease the number of **mtry = 3**, since it is related to the numbers of variables used to created the trees, nevertheless our prediction does not improve as we wished, and it remains in **85%**.
+
+#### 7.4 Random Forest Conlusions
+
+We could increase our chance to win with predictions using random forests, but still not reach a better index of 
+success, but we need to remember that we are training our model using one subject and use it in another one, so there 
+is one factor which is missing, and is the difficult of subject itself, so after that our result seen very acceptable.
+
