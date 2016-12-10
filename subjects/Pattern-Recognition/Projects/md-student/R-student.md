@@ -7,9 +7,9 @@
 #### Data Source (Citation):
 **Using Data Mining To Predict Secondary School Student Alcohol Consumption.**
 
-*Fabio Pagnotta, Hossain Mohammad Amran* \n
+*Fabio Pagnotta, Hossain Mohammad Amran* 
 
-Department of Computer Science,University of Camerino\n
+Department of Computer Science,University of Camerino
 
 #### Data Set was consulted at:
 * **Url:** https://archive.ics.uci.edu/ml/datasets/STUDENT+ALCOHOL+CONSUMPTION
@@ -140,12 +140,86 @@ tree1 <- rpart(passed~sex+age+famsize+Pstatus+Medu+Fedu+Mjob+Fjob
             +traveltime+failures+schoolsup+famsup+romantic+famrel+freetime+absences+alcohol
             ,data= math, method="class")
 # Plot a fancy and more informative tree
-fancyRpartPlot(tree1)
+ fancyRpartPlot(tree1)
+print(tree1)
 ```
 
 
 ![png](output_11_0.png)
 
+
+    n= 395 
+    
+    node), split, n, loss, yval, (yprob)
+          * denotes terminal node
+    
+      1) root 395 130 pass (0.3291139 0.6708861)  
+        2) failures>=0.5 83  31 fail (0.6265060 0.3734940)  
+          4) absences< 1 26   4 fail (0.8461538 0.1538462) *
+          5) absences>=1 57  27 fail (0.5263158 0.4736842)  
+           10) alcohol>=17 19   5 fail (0.7368421 0.2631579) *
+           11) alcohol< 17 38  16 pass (0.4210526 0.5789474)  
+             22) Fjob=health,services,teacher 15   6 fail (0.6000000 0.4000000) *
+             23) Fjob=at_home,other 23   7 pass (0.3043478 0.6956522) *
+        3) failures< 0.5 312  78 pass (0.2500000 0.7500000)  
+          6) schoolsup=yes 40  18 pass (0.4500000 0.5500000)  
+           12) Mjob=at_home,health,teacher 9   2 fail (0.7777778 0.2222222) *
+           13) Mjob=other,services 31  11 pass (0.3548387 0.6451613) *
+          7) schoolsup=no 272  60 pass (0.2205882 0.7794118)  
+           14) absences>=17.5 12   5 fail (0.5833333 0.4166667) *
+           15) absences< 17.5 260  53 pass (0.2038462 0.7961538)  
+             30) absences< 0.5 80  26 pass (0.3250000 0.6750000)  
+               60) sex=F 46  20 pass (0.4347826 0.5652174)  
+                120) Medu< 3.5 30  13 fail (0.5666667 0.4333333)  
+                  240) alcohol< 8 14   2 fail (0.8571429 0.1428571) *
+                  241) alcohol>=8 16   5 pass (0.3125000 0.6875000) *
+                121) Medu>=3.5 16   3 pass (0.1875000 0.8125000) *
+               61) sex=M 34   6 pass (0.1764706 0.8235294) *
+             31) absences>=0.5 180  27 pass (0.1500000 0.8500000) *
+
+
+#### 2.1.1.- Create the first tree decicion model
+Let's see why failures and abscences has the weight they have.
+
+
+```R
+table(math$failures)
+plot(factor(math$failures))
+```
+
+
+
+
+    
+      0   1   2   3 
+    312  50  17  16 
+
+
+
+
+![png](output_13_1.png)
+
+
+
+```R
+head(table(math$absences)) # just some samples
+plot(factor(math$absences))
+```
+
+
+
+
+    
+      0   1   2   3   4   5 
+    115   3  65   8  53   5 
+
+
+
+
+![png](output_14_1.png)
+
+
+As we could see the behaviour from those student who has already failed at least once, is different from thew rest, since for them is needed to not assist at least one class to have a better chance to pass.
 
 #### 2.2.- Compare our prediction model 
 Against the real values from portuguese data set.
@@ -171,7 +245,7 @@ prop.table(err1)
 
 
 #### 2.3.- First conclusions
-We reached **77%** of correctness from our initial model, but of course from the tree diagram we can suspect a case of overfitting here, so lets start  a bit of overfiting  
+We reached **77%** of correctness from our initial model, but of course from the tree diagram we can suspect a case of overfitting here, so let's start a more exhaustive analysis.
 
 ### 3.- Analysis step by step
 
@@ -187,7 +261,7 @@ fancyRpartPlot(tree2)
 ```
 
 
-![png](output_16_0.png)
+![png](output_20_0.png)
 
 
 The tree look pretty simple but lets check how good we've created our prediction:
@@ -226,7 +300,7 @@ fancyRpartPlot(tree3)
 ```
 
 
-![png](output_21_0.png)
+![png](output_25_0.png)
 
 
 Unfortunally using those attributes we only get a node and not a tree as error in plot states.
@@ -275,7 +349,7 @@ fancyRpartPlot(tree4)
 ```
 
 
-![png](output_26_0.png)
+![png](output_30_0.png)
 
 
 Well this tree looks a bit unbalanced, but lets the error says how well or bad we did it, using prediction again.
@@ -315,7 +389,7 @@ fancyRpartPlot(tree5)
 ```
 
 
-![png](output_32_0.png)
+![png](output_36_0.png)
 
 
 
@@ -344,7 +418,7 @@ After some reordering we were able to add a **1%** to our best prediction reachi
 
 From this basic analysis we can make a few conclusions here:
 * The main factor to determine the success of a student is its past, since people with previous **failures** tend to fail again. 
-* Surprisingly student with **no absences** are more elegible to fail (sometimes is good to rest from school).
+* Surprisingly  from student with previous failures and with **no absences** are more elegible to fail (sometimes [At least for them] is good to rest from school).
 * Other dominant attributes are **alcohol** consumption and the **father's job**.
 
 Must to be said that work with trees is not the best way to make predicitions, since usually they are built using greedy partitioning which as was proved many times could conduct us for not the best fit.
@@ -387,7 +461,7 @@ varImpPlot(rndtree1)
 ```
 
 
-![png](output_43_0.png)
+![png](output_47_0.png)
 
 
 
@@ -459,15 +533,6 @@ rferr3 <- table(rfpred3 == port$passed)
 prop.table(rferr3)
 ```
 
-
-
-
-    
-        FALSE      TRUE 
-    0.1386749 0.8613251 
-
-
-
 Well the result varies from **85.8%** to **86%** which is in general a slightly better but not by far. So let's use the top 5 of relevant values from point **7.0**
 
 
@@ -483,15 +548,6 @@ rfpred4 <- predict(rndtree4, port, OOB=TRUE, type = "response")
 rferr4 <- table(rfpred4 == port$passed)
 prop.table(rferr4)
 ```
-
-
-
-
-    
-        FALSE      TRUE 
-    0.1432974 0.8567026 
-
-
 
 We had to decrease the number of **mtry = 3**, since it is related to the numbers of variables used to created the trees, nevertheless our prediction does not improve as we wished, and it remains in **85%**.
 
