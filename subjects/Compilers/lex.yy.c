@@ -1806,7 +1806,7 @@ void yyfree (void * ptr )
  */
 int main()
 {
-  printf("Give me your input:\n");
+  /* printf("Processing file:\n"); */
   yylex();
 }
 

@@ -48,6 +48,6 @@ end_comment2      "|#"+
  */
 int main()
 {
-  printf("Give me your input:\n");
+  /* printf("Processing file:\n"); */
   yylex();
 }
