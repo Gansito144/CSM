@@ -17,22 +17,16 @@
 #include <stdio.h>
 %}
 
-white_space       [ \t]*
-digit             [0-9]
-alpha             [A-Za-z_]
-alpha_num         ({alpha}|{digit})
-hex_digit         [0-9A-F]
-identifier        {alpha}{alpha_num}*
-unsigned_integer  {digit}+
-hex_integer       0[xX]{hex_digit}{hex_digit}*
-exponent          e[+-]?{digit}+
-i                 {unsigned_integer}
-real              ({i}\.{i}?|{i}?\.{i}){exponent}?
-string            \'([^'\n]|\'\')+\'
-bad_string        \'([^'\n]|\'\')+
+integer           [0-9]*
+binary            #b[0,1]*
+octal             #o[0,7]*
+hexadecimal       #x[0-9A-Fa-f]*
 
 %%
-{hex_integer}   printf("Found a HEX number %s !", yytext);
+{integer}       printf("integer %s\n", yytext);
+{binary}        printf("binary %s\n", yytext);
+{octal}         printf("octal %s\n", yytext);
+{hexadecimal}   printf("hexadecimal %s\n", yytext);
 .   printf("");
 %%
 
