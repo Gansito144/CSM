@@ -5,4 +5,4 @@
 )
 
 
-;;; Call it with (HELLO)
+; Call it with (HELLO)
