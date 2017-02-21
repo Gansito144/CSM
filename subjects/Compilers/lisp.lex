@@ -17,17 +17,23 @@
 #include <stdio.h>
 %}
 
-integer           [0-9]*
+string            \"([^"\n]|\"\")+\"
+integer           [0-9]+
 binary            #b[0,1]*
 octal             #o[0,7]*
 hexadecimal       #x[0-9A-Fa-f]*
+comment           ;.*
+symbol            :[A-Z]+
 
 %%
+{string}        printf("string %s\n", yytext);
 {integer}       printf("integer %s\n", yytext);
 {binary}        printf("binary %s\n", yytext);
 {octal}         printf("octal %s\n", yytext);
 {hexadecimal}   printf("hexadecimal %s\n", yytext);
-.   printf("");
+{comment}       printf("Comment %s\n",yytext);
+{symbol}        printf("symbol %s\n",yytext);
+.               printf("");
 %%
 
 /*
@@ -35,6 +41,6 @@ hexadecimal       #x[0-9A-Fa-f]*
  */
 int main()
 {
-  printf("Give me your input:\n");
+  /* printf("Processing file:\n"); */
   yylex();
 }
