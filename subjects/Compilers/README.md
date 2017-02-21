@@ -1,12 +1,13 @@
 ## Sample LISP Scanner
 
-### Description:
+### Description: 
 
 ### Usage:
  * flex lisp.lex
- * gcc lex.yy.c
+ * gcc lex.yy.c -o scanner
+ * ./scanner < file.lisp
 
 ### Requirements
-In MacOS please run: brew install flex  
+In MacOS please run: `brew install flex`.
 
 
