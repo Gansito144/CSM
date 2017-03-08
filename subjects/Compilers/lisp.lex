@@ -32,17 +32,19 @@ hexadecimal       #x[0-9A-Fa-f]*
 start_comment1    ";".*
 start_comment2    "#|"+
 end_comment2      "|#"+
+expression        \(.+\)
 
 %%
 {integer}        printf("(integer) %s\n", yytext);
 {binary}         printf("(binary) %s\n", yytext);
 {octal}          printf("(octal) %s\n", yytext);
 {hexadecimal}    printf("(hexadecimal) %s\n", yytext);
-.                printf("u");
+.                printf("");
 {start_comment1} printf("(Simple comment) %s\n", yytext);
 {start_comment2} printf("(Block comment) %s\n", yytext);
 {end_comment2}   printf("(End Block comment) %s\n", yytext);
 {atom}    		   printf("(atom) %s\n", yytext);
+{expression}     printf("(expression) %s\n", yytext);
 %%
 
 /*
