@@ -5,6 +5,7 @@
 :THING
 (+ 1 2 3 4)
 ;;;; Simple comment
-#|  HELLO  
+#|  HELLO
+ INside a comment  
 	#| THIS IS A NESTED COMMENT  |# 
 |#
