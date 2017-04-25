@@ -47,12 +47,12 @@ subtraction       "-"
 multiplication    "*"
 division          "/"
 a_operator        {addition}|{subtraction}|{multiplication}|{division}
-cmp_word          min|max|equal|equalp|eq|eql
-rt_evaluation     eval
-nil               nil
-logical           not|and|or
-type_boolean      boolean
-var_assignment    setq|setf|set|let    
+cmp_word          "min"|"max"|"equal"|"equalp"|"eq"|"eql"
+rt_evaluation     "eval"
+nil               "nil"
+logical           "not"|"and"|"or"
+type_boolean      "boolean"
+var_assignment    "setq"|"setf"|"set"|"let"    
 comparisson       {greater_than}|{less_than}|{cmp_word}
 declare           \(defpackage p*\)
 selective_export  \(export *\)
@@ -76,7 +76,7 @@ r_apply					        "apply"
 
 %%
 {integer}           printf("(integer) (%s)\n", yytext);
-{a_operator}           printf("(operator) (%s)\n", yytext);
+{a_operator}        printf("(operator) (%s)\n", yytext);
 {binary}            printf("(binary) (%s)\n", yytext);
 {octal}             printf("(octal) (%s)\n", yytext);
 {hexadecimal}       printf("(hexadecimal) (%s)\n", yytext);
@@ -84,7 +84,6 @@ r_apply					        "apply"
 {block_comment}     printf("(Block comment) (%s)\n", yytext);
 {atom}      		    printf("(atom) (%s)\n", yytext);
 {comparisson}       printf("(comparisson) (%s)\n", yytext);
-{logical}           printf("(logical) (%s)\n", yytext);
 .                   printf("");
 %%
 
