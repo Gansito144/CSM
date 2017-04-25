@@ -3,7 +3,7 @@
 # echo 'Generating... flex lisp.lex'
 flex lisp.lex
 # echo 'Compiling... gcc lex.yy.c -o scanner'
-gcc lex.yy.c -o scanner
+g++ lex.yy.c -o scanner
 echo 'Processing file resources/${1}'
 echo ' ------------------------------------------ '
 echo '|             BEGIN OF FILE                |'

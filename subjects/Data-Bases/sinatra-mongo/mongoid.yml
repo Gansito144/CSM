@@ -1,0 +1,13 @@
+development:
+  clients:
+    default:
+      database: movies
+      hosts:
+        - localhost:27017
+production:
+   clients:
+     default:
+       uri: <%= ENV['MONGOHQ_URL'] %>
+       options:
+         skip_version_check: true
+         safe: true

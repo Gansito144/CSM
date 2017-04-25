@@ -1,0 +1,8 @@
+h1 Movies
+
+- if @movies.any?
+  ul.movies
+  -@movies.each do |movie|
+    == slim :movie, :locals => {movie: movie}
+- else
+  p No movies here!

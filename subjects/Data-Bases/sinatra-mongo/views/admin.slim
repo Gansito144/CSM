@@ -1,0 +1,13 @@
+#admin
+  ul
+    li
+      a.round.button href='/movies' Movies
+    li
+      a.round.button href='/movies/new' Add a movie
+    - if @movie
+      li
+        a.round.button href="/movies/#{@movie.id}/edit" Edit this movie
+      li
+        a.round.button href="/movies/delete/#{@movie.id}" Delete this movie
+      li
+        a.rounded.button href="/logout" Log Out

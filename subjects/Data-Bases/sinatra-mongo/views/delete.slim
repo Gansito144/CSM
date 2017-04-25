@@ -1,0 +1,6 @@
+h1 Delete Movie
+p Are you sure you want to delete movie #{@movie.title}?
+form action="/movies/#{@movie.id}" method="POST"
+  input type="hidden" name="_method" value="DELETE"
+  input type="submit" value="Delete"
+a href="/movies" cancel
