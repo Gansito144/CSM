@@ -1,0 +1,13 @@
+doctype html
+html
+  head
+    title=  @title || "Movies for everybody!"
+    link rel="stylesheet" href="/styles/main.css"
+  body
+    - if admin?
+      == slim :admin
+    - else
+      a.rounded.button href="/login" Log In
+    h1
+      a href="/pages" Simple Sinatra CMS
+    == yield
