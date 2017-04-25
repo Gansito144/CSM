@@ -16,26 +16,37 @@
 
 %{
 #include <stdio.h>
+#include <iostream>
+#include <stack>
+
+using namespace std;
+
+stack <int> Ops;
+
 %}
 
 white_space       [ \t]*
 digit             [0-9]+
 alpha             [A-Za-z_]
 symbol            \:[A-Z]*
-alpha_num         ({alpha}|{digit})
+alpha_num         ({alpha}|{digit})*
 str               \"[^\"\n]*\"
-atom			  ({alpha_num}|{digit}|{str}|{symbol}) 
+atom              ({alpha_num}|{digit}|{str}|{symbol}) 
 integer           [0-9]*
 binary            #b[0-1]*
 octal             #o[0-7]*
 hexadecimal       #x[0-9A-Fa-f]*
 single_comment    \;.*
 block_comment     "#|"([^*]|(\|+[^|#]))*\|+\#
-expression        \(.+\)
 greater_than      >
 less_than         <
 greater_equal     <=
 less_equal        >=
+addition          "+"
+subtraction       "-"
+multiplication    "*"
+division          "/"
+a_operator        {addition}|{subtraction}|{multiplication}|{division}
 cmp_word          min|max|equal|equalp|eq|eql
 rt_evaluation     eval
 nil               nil
@@ -62,16 +73,16 @@ r_identity              "identity"
 r_return_from	          "return-from"
 r_no_applicable_method  "no-applicable-method"
 r_apply					        "apply"
-%%
 
+%%
 {integer}           printf("(integer) (%s)\n", yytext);
+{a_operator}           printf("(operator) (%s)\n", yytext);
 {binary}            printf("(binary) (%s)\n", yytext);
 {octal}             printf("(octal) (%s)\n", yytext);
 {hexadecimal}       printf("(hexadecimal) (%s)\n", yytext);
 {single_comment}    printf("(Simple comment) (%s)\n", yytext);
 {block_comment}     printf("(Block comment) (%s)\n", yytext);
 {atom}      		    printf("(atom) (%s)\n", yytext);
-{expression}        printf("(expression) (%s)\n", yytext);
 {comparisson}       printf("(comparisson) (%s)\n", yytext);
 {logical}           printf("(logical) (%s)\n", yytext);
 .                   printf("");
