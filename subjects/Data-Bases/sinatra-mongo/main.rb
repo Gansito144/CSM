@@ -1,5 +1,4 @@
 require 'sinatra'
-#require 'sinatra/reloader' if development?
 require 'mongoid'
 require 'slim'
 require 'redcarpet'
@@ -9,12 +8,28 @@ configure do
   enable :sessions
 end
 
+class Movie
+  def make_permalink
+    title.downcase.gsub(/W/,'-').squeeze('-').chomp('-') if title
+  end
+
+  include Mongoid::Document
+
+  field :title,     type: String
+  field :content,   type: String
+  field :trailer,   type: String
+  field :poster,    type: String
+  field :seen,      type: Integer
+  field :director,  type: String
+  field :permalink, type: String, default: -> { make_permalink }
+end
+
 helpers do
-  def url_for page
+  def url_for movie
     if admin?
-      "/pages/" + page.id
+      "/movies/" + movie.id
     else
-      "/" + page.permalink   
+      "/" + movie.permalink   
     end  
   end
 
@@ -27,74 +42,61 @@ helpers do
   end
 end
 
-class Page
-  def make_permalink
-    title.downcase.gsub(/W/,'-').squeeze('-').chomp('-') if title
-  end
-
-  include Mongoid::Document
-
-  field :title,   type: String
-  field :content, type: String
-  field :trailer, type: String
-  field :poster,  type: String
-  field :seen,    type: Integer
-  field :award,   type: String
-  field :permalink, type: String, default: -> { make_permalink }
-end
-
-get '/pages' do
-  @pages = Page.all
-  @title = "Simple CMS: Page List"
+get '/movies' do
+  @movies = Movie.all
+  @title = "Some movies: Page List"
   slim :index
 end
 
-get '/pages/new' do
+get '/movies/new' do
   protected!
-  @page = Page.new
+  @movie = Movie.new
   slim :new
 end
 
-get '/pages/:id/edit' do
+get '/movies/:id/edit' do
   protected!
-  @page = Page.find(params[:id])
+  @movie = Movie.find(params[:id])
   slim :edit
 end
 
-get '/pages/:id' do
-  @page = Page.find(params[:id])
-  @title = @page.title
+get '/movies/:id' do
+  @movie = Movie.find(params[:id])
+  @movie.update_attributes(seen: @movie.seen + 1)
+  @title = @movie.title
   slim :show
 end
 
-post '/pages' do
+post '/movies' do
   protected!
-  page = Page.create(params[:page])
-  redirect to("/pages/#{page.id}")
+  movie = Movie.create(params[:movie])
+  movie.update_attributes(seen: 0)
+  redirect to("/movies/#{movie.id}")
 end
 
-put '/pages/:id' do
+put '/movies/:id' do
   protected!
-  page = Page.find(params[:id])
-  page.update_attributes(params[:page])
-  redirect to("/pages/#{page.id}")
+  movie = Movie.find(params[:id])
+  movie.update_attributes(params[:movie])
+  redirect to("/movies/#{movie.id}")
 end
 
-get '/pages/delete/:id' do
+get '/movies/delete/:id' do
   protected!
-  @page = Page.find(params[:id])
+  @movie = Movie.find(params[:id])
   slim :delete
 end
 
-delete '/pages/:id' do
+delete '/movies/:id' do
   protected!
-  Page.find(params[:id]).destroy
-  redirect to('/pages')
+  Movie.find(params[:id]).destroy
+  redirect to('/movies')
 end
 
 get '/:permalink' do
   begin
-    @page = Page.find_by(permalink: params[:permalink])
+    @movie = Movie.find_by(permalink: params[:permalink])
+    @movie.update_attributes(seen: @movie.seen + 1)
   rescue
     pass
   end

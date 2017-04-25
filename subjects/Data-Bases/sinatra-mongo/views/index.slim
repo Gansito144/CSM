@@ -1,8 +1,8 @@
-h1 Pages
+h1 Movies
 
-- if @pages.any?
-  ul.pages
-  -@pages.each do |page|
-    == slim :page, :locals => {page: page}
+- if @movies.any?
+  ul.movies
+  -@movies.each do |movie|
+    == slim :movie, :locals => {movie: movie}
 - else
-  p No pages here!
+  p No movies here!

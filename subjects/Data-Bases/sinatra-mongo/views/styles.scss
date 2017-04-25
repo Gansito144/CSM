@@ -1,57 +1,46 @@
-$blue: #FF6601;
+$orange: #FF6601;
 
-  body{
-    margin: 0;
-    padding: 0;
-    font: 13px/1.2 helvetica, arial, sans-serif;
-  }
+body{
+  margin: 0;
+  padding: 0;
+  font: 13px/1.2 helvetica, arial, sans-serif;
+}
 
-  h1,h2,h3,h4,h5,h6{
-    color: $blue;
-  }
+h1,h2,h3,h4,h5,h6{
+  color: $orange;
+}
 
-  .logo {
-    background: #444;
-    margin: 0;
-    padding: 20px 10px;
-    font-size: 44px;
-    a,a:visited{
-      color: $blue;
-      text-decoration: none;
-    }
+.button{
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 4px;
+  color: #fff;
+  background: $orange;
+  text-decoration: none;
+  font-weight: bold;
+  display: inline-block;
+  width: auto;
+  &:hover{
+    background: darken($orange,20%);
   }
+}
 
-  .button{
-    border: none;
-    border-radius: 8px;
-    padding: 8px 12px;
-    margin: 4px;
-    color: #fff;
-    background: $blue;
-    text-decoration: none;
-    font-weight: bold;
-    display: inline-block;
-    width: auto;
-    &:hover{
-      background: darken($blue,20%);
-    }
-  }
+label{
+  display: block;
+  font-weight: bold;
+  font-size: 16px;
+}
 
-  label{
-    display: block;
-    font-weight: bold;
-    font-size: 16px;
-  }
+form, input, textarea{
+  width: 100%;
+}
 
-  form, input, textarea{
-    width: 100%;
-  }
-
-  input, textarea {
-    border: #ccc 1px solid;
-    padding: 10px 5px;
-    font-size: 16px;
-  }
+input, textarea {
+  border: #ccc 1px solid;
+  padding: 10px 5px;
+  font-size: 16px;
+}
 
 #admin ul{
   list-style: none;
@@ -61,3 +50,4 @@ $blue: #FF6601;
     display: inline-block;
   }
 }  
+

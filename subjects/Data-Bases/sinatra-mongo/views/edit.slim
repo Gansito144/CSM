@@ -1,7 +1,7 @@
-h1 Edit Page
-form action="/pages/#{@page.id}" method="POST"
+h1 Edit Movie
+form action="/movies/#{@movie.id}" method="POST"
   input type="hidden" name="_method" value="PUT"
   fieldset
-    legend Edit page
+    legend Edit movie
     == slim :form
   input type="submit" value="Update"
