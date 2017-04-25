@@ -59,9 +59,10 @@ r_defun	                "defun"
 r_funcall               "funcall"
 r_return                "return"
 r_identity              "identity"
-r_return_from	          "return-from"
+r_return_from	        "return-from"
 r_no_applicable_method  "no-applicable-method"
-r_apply					        "apply"
+r_apply					"apply"
+
 %%
 
 {integer}           printf("(integer) (%s)\n", yytext);
