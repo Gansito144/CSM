@@ -9,4 +9,9 @@ html
     - if admin?
       == slim :admin
     - else
-      a.round.button class="gboton" href="/login" Log In
+      div class="admin"
+        ul
+          li
+            a.round.button class="boton" href='/movies' Movies
+          li
+            a.round.button class="gboton" href="/login" Log In

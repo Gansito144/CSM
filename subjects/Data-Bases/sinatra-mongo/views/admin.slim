@@ -4,11 +4,11 @@ div class="admin"
       a.round.button class="boton" href='/movies' Movies
     li
       a.round.button class="boton" href='/movies/new' Add a movie
+    li
+      a.round.button class="rboton" href="/logout" Log Out
   - if @movie
     ul
       li
         a.round.button class="bboton" href="/movies/#{@movie.id}/edit" Edit this movie
       li
         a.round.button class="rboton" href="/movies/delete/#{@movie.id}" Delete this movie
-      li
-        a.round.button class="rboton" href="/logout" Log Out
