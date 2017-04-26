@@ -1,16 +1,23 @@
-$orange: #FF6601;
+@import url('http://fonts.googleapis.com/css?family=Open+Sans:300');
 
-body{
+$orange: #FF6601;
+$blue:   #0166FF;
+$green:  #22CC22;
+$red:    #CC1111;
+
+* {
   margin: 0;
   padding: 0;
-  font: 13px/1.2 helvetica, arial, sans-serif;
+  box-sizing: border-box;
 }
 
-h1,h2,h3,h4,h5,h6{
-  color: $orange;
+body {
+  font: 14px/1 'Open Sans', sans-serif;
+  color: #555;
+  background: #e5e5e5;
 }
 
-.button{
+.boton {
   border: none;
   border-radius: 8px;
   padding: 8px 12px;
@@ -26,14 +33,39 @@ h1,h2,h3,h4,h5,h6{
   }
 }
 
+
+.rboton {
+  @extend .boton;
+  background: $red;
+  &:hover{
+    background: darken($red,20%);
+  }
+}
+
+.gboton {
+  @extend .boton;
+  background: $green;
+  &:hover{
+    background: darken($green,20%);
+  }
+}
+
+.bboton {
+  @extend .boton;
+  background: $blue;
+  &:hover{
+    background: darken($blue,20%);
+  }
+}
+
 label{
   display: block;
   font-weight: bold;
   font-size: 16px;
 }
 
-form, input, textarea{
-  width: 100%;
+form, textarea{
+  width: 95%;
 }
 
 input, textarea {
@@ -42,12 +74,109 @@ input, textarea {
   font-size: 16px;
 }
 
-#admin ul{
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  li{
-    display: inline-block;
-  }
-}  
+.general {
+  display: flex;
+  width: 800px;
+  margin: 0 auto;
+  padding: 5px;
+  flex-direction: column;
+} 
 
+.general > div {
+  display: flex;
+  flex-direction: row;
+}
+
+.general > div > div {
+  display: flex;
+  flex-direction: column;
+  margin:  6px;
+  padding: 6px;
+}
+
+.general > div > div > div{
+  display: flex;
+  flex-direction: column;
+  margin:  3px;
+  padding: 3px;
+} 
+
+.admin {
+  width: 680px;
+  margin: 0 auto;
+  padding: 5px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.3);
+  display:flex;
+  justify-content: space-around;
+  ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    li{
+      display: inline-block;
+    }
+  }
+}
+
+.gallery {
+  width: 680px;
+  margin: 0 auto;
+  padding: 5px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,.3);
+}
+
+.gallery > div {
+  position: relative;
+  float: left;
+  padding: 5px;
+}
+
+.gallery > div > a img {
+  display: block;
+  width: 150px;
+  transition: .1s transform;
+  transform: translateZ(0); /* hack */
+}
+
+.gallery > div:hover {
+  z-index: 1;
+}
+
+.gallery > div:hover > a img {
+  transform: scale(1.7,1.7);
+  transition: .3s transform;
+}
+
+.cf:before, .cf:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+
+.cf:after {
+  clear: both;
+}
+
+h1 {
+  margin: 40px 0;
+  font-size: 30px;
+  font-weight: 300;
+  text-align: center;
+}
+
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 90%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}

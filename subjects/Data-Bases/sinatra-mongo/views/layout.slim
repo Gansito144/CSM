@@ -4,10 +4,9 @@ html
     title=  @title || "Movies for everybody!"
     link rel="stylesheet" href="/styles/main.css"
   body
+    == yield
+
     - if admin?
       == slim :admin
     - else
-      a.rounded.button href="/login" Log In
-    h1
-      a href="/movies" List of movies
-    == yield
+      a.round.button class="gboton" href="/login" Log In
