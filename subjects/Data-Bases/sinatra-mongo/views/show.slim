@@ -3,14 +3,18 @@ h1= @movie.title
 div class="general"
   - if @movie.poster
   div
-    div
-      img width="315" height="420" style="border:none;" src="#{@movie.poster}"
+    div 
+      a href="#{@movie.imdb}"
+        img width="315" height="420" style="border:none;" src="#{@movie.poster}"
     div
       div
         table
           tr
             th Director
             td #{@movie.director}
+          tr
+            th Writer
+            td #{@movie.writer}
           tr
             th Description
             td #{@movie.content}

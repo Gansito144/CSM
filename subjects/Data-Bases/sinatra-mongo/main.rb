@@ -21,6 +21,8 @@ class Movie
   field :poster,    type: String
   field :seen,      type: Integer
   field :director,  type: String
+  field :writer,    type: String
+  field :imdb,      type: String
   field :permalink, type: String, default: -> { make_permalink }
 end
 
