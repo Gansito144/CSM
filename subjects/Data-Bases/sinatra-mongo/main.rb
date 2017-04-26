@@ -24,6 +24,9 @@ class Movie
   field :writer,    type: String
   field :imdb,      type: String
   field :permalink, type: String, default: -> { make_permalink }
+
+  index({ title: 'text' })
+  scope :title, -> (title) { where(title: /^#{title}/i) }
 end
 
 helpers do
@@ -46,7 +49,13 @@ end
 
 get '/movies' do
   @movies = Movie.all
-  @title = "Some movies: Page List"
+  @title = "Some movies list"
+  slim :index
+end
+
+get '/movies/search' do
+  @title = "Results for search"
+  @movies = Movie.send(:title, params[:title]) if params[:title]
   slim :index
 end
 
