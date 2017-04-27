@@ -14,7 +14,7 @@ $red:    #CC1111;
 body {
   font: 14px/1 'Open Sans', sans-serif;
   color: #555;
-  background: #e5e5e5;
+  background-image: url('http://i.imgur.com/LNiXLtG.png');
 }
 
 .boton {
@@ -119,7 +119,7 @@ input, textarea {
 }
 
 .gallery {
-  width: 680px;
+  width: 660px;
   margin: 0 auto;
   padding: 5px;
   background: #fff;
@@ -168,6 +168,7 @@ h1 {
 table {
     font-family: arial, sans-serif;
     border-collapse: collapse;
+    background-color: #eeeeee;
     width: 90%;
 }
 
@@ -178,5 +179,5 @@ td, th {
 }
 
 tr:nth-child(even) {
-    background-color: #dddddd;
+    background-color: #aaaaaa;
 }
