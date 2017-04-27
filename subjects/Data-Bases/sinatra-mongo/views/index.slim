@@ -3,7 +3,7 @@ h1 Movies
 - if @movies.any?
   div class="general" style="width: 600px;"
     form action="/movies/search" method="GET"
-      input.title type="text" name="title" value="" size="40"
+      input.title type="text" name="tsearch" value="" size="40"
       input class="bboton" style="width: 150px;" type="submit" value="Search"
 
   div class="gallery cf"

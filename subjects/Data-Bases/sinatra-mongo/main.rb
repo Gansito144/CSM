@@ -26,7 +26,9 @@ class Movie
   field :permalink, type: String, default: -> { make_permalink }
 
   index({ title: 'text' })
-  scope :title, -> (title) { where(title: /^#{title}/i) }
+  scope :title,    -> (title)    { where(title: /#{title}/i)       }
+  scope :director, -> (director) { where(director: /#{director}/i) }
+  scope :writer,   -> (writer)   { where(writer: /#{writer}/i)     }
 end
 
 helpers do
@@ -55,7 +57,10 @@ end
 
 get '/movies/search' do
   @title = "Results for search"
-  @movies = Movie.send(:title, params[:title]) if params[:title]
+  @movies = Movie.send(:title,    params[:tsearch]) if params[:tsearch]
+  @movies += Movie.send(:director, params[:tsearch]) if params[:tsearch]
+  @movies += Movie.send(:writer,   params[:tsearch]) if params[:tsearch]
+  @movies = @movies.uniq
   slim :index
 end
 
