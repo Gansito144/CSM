@@ -117,20 +117,20 @@ int Grid::mv[8][2] = { {-1,-1}, {-1,0},
  * Main functions
  */
 int main() {
-  int n, r;
-  int t;
+  int r, c;
+  int points;
   int a, b;
   deque < pair<int, int> > dq;
 
-  cin >> n >> r;
+  cin >> r >> c;
 
-  cin >> t;
-  for(int i=0; i<t; ++i) {
+  cin >> points;
+  for(int i=0; i<points; ++i) {
     cin >> a >> b;
     dq.push_back(make_pair(a,b));
   }
 
-  Grid gr(n,r, dq);
+  Grid gr(r,c, dq);
 
   /* Init ncurses mode */
   initscr ();
@@ -143,7 +143,7 @@ int main() {
     /* Print at row 0, col 0 */
     mvprintw (0, 0, "%s", str.c_str());
     refresh ();
-    usleep (125000);
+    usleep (1250000);
   }
   /* End ncurses mode */
   endwin();
